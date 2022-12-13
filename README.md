@@ -243,13 +243,13 @@
 
 ![orders表格](img/orders表格.png)
 
-可以看到o_orderkey已经被成功设置为主键，o_curskey已经被成功设置为参考customer的外键，lineitem的l_orderkey也被成功设置为参考o_orderkey的外键。
+可以看到o_orderkey已经被成功设置为主键，o_curskey已经被成功设置为引用customer的外键，lineitem的l_orderkey也被成功设置为引用o_orderkey的外键。
 
 ## 实验总结
 
 本次试验主要完成了表的创建和数据的导入，为后续对表格做各种操作的实验做准备。通过实践，本人掌握了数据库OpenGauss创建表格语句create的使用方法以及设置主键和外键约束的方法，了解该如何进行数据导入。
 
-按照实验指导书的步骤一步一步完成基本没有偶遇到问题，只需要注意每完成一个步骤都需要检查一下这一步是否正确完成。每一步骤都有不同的检查方式。
+按照实验指导书的步骤一步一步完成基本没有遇到问题，只需要注意每完成一个步骤都需要检查一下这一步是否正确完成。每一步骤都有不同的检查方式。
 
 
 # 数据查询与修改实验
@@ -842,7 +842,338 @@ from ORDERS;
 
 实验中遇到的一个问题就是由于查询结果一般数量巨大，实验结果难以表示。因此，实验结果主要通过使用`EXPLAIN ANALYZE`语句获取查询结果行数和查询所需时间来展现。同时，对于需要对比的查询语句，`EXPLAIN ANALYZE`语句也可用于对比不同查询语句的表现。
 
-# 数据库完整性与安全性实验
+# 数据库完整性约束实验
+
+## 实验目的
+
+了解 SQL 语言和 openGauss 数据库提供的完整性（integrity）机制，通过实验掌握面向实际数据库建立实体完整性、参照完整性、断言、函数依赖等各种完整性约束的方法，验证各类完整性保障措施。
+
+## 实验环境
+
+本实验环境为 virtualBOX 虚拟机 openEuler20.03 系统上的openGauss1.1.0/openGauss2.0.0 数据库和华为云 GaussDB(openGauss)数据库，实验数据采用电商数据库的八张表。
+
+## 实验内容
+
+在前面完成的实验中已建立了本实验所需的 8 张表。本实验将针对这 8 张表，采用 create table、alter table 等语句，添加主键、候选键、外键、check 约束、默认/缺省值约束，并观察当用户对数据库进行增、删、改操作时，DBMS 如何维护完整性约束。
+
+* 建立完整性约束
+* 主键/候选键/空值/check/默认值约束验证
+* 外键/参照完整性验证分析
+* 函数依赖
+* 触发器
+
+## 实验步骤
+
+### 利用 Create table/Alter table 语句建立完整性约束
+
+创建lineitem表格副本，并使用`Create table`建立完整性约束。以下是创建语句：
+
+    CREATE TABLE LINEITEMcopy1(
+    L_ORDERKEY integer NOT NULL,
+    L_PARTKEY integer NOT NULL,
+    L_SUPPKEY integer NOT NULL,
+    L_LINENUMBER integer NOT NULL,
+    L_QUANTITY DECIMAL(15,2) NOT NULL,
+    L_EXTENDEDPRICE DECIMAL(15,2) NOT NULL,
+    L_DISCOUNT DECIMAL(15,2) NOT NULL,
+    L_TAX DECIMAL(15,2) NOT NULL,
+    L_RETURNFLAG CHAR(1) NOT NULL,
+    L_LINESTATUS CHAR(1) NOT NULL,
+    L_SHIPDATE DATE NOT NULL,
+    L_COMMITDATE DATE NOT NULL,
+    L_RECEIPTDATE DATE NOT NULL,
+    L_SHIPINSTRUCT CHAR(25) NOT NULL,
+    L_SHIPMODE CHAR(10) NOT NULL,
+    L_COMMENT VARCHAR(44) NOT NULL,
+    PRIMARY KEY (L_ORDERKEY, L_LINENUMBER),
+    FOREIGN KEY (L_PARTKEY) REFERENCES PART(P_PARTKEY),
+    FOREIGN KEY (L_SUPPKEY) REFERENCES SUPPLIER(S_SUPPKEY)
+    );
+
+![create建立约束](/img/create建立约束.png)
+
+可以看到完整性约束建立成功。
+
+接着在创建另一个不带约束的lineitem表格副本LINEITEMcopy2，改用`alter table`添加约束。
+
+设置主键为L_ORDERKEY和L_LINENUMBER：
+
+    alter table LINEITEMcopy2 add constraint LINEITEMcopy2_PKEY primary key (L_ORDERKEY, L_LINENUMBER);
+
+设置外键L_PARTKEY引用自PART：
+
+    alter table LINEITEMcopy2 add constraint LINEITEMcopy2_L_PARTKEY_FKEY foreign key (L_PARTKEY) references PART;
+
+设置外键L_SUPPKEY引用自SUPPLIER：
+
+    alter table LINEITEMcopy2 add constraint LINEITEMcopy2_L_SUPPKEY_FKEY foreign key (L_SUPPKEY) references SUPPLIER;
+
+![alter建立约束](/img/alter建立约束.png)
+
+可以看到成功建立了和LINEITEMcopy1一样的完整性约束
+
+### 主键约束验证
+
+将LINEITEM数据全部插入到表LINEITEMcopy1后，使用查询语句判断LINEITEMcopy1是否满足主键约束，以下为查询语句：
+
+    Select l_orderkey, count(*)
+    From lineitemcopy1
+    Group by (l_orderkey, l_linenumber)
+    Having count(*)>1;
+
+返回结果为0行，说明表中无重复主键的数据。
+
+使用查询语句判断是否含有主键为空的数据：
+
+    select *
+    from lineitemcopy1
+    where l_orderkey is null
+    and l_linenumber is null;
+
+返回结果为0行，说明表中无主键为空的数据。
+
+尝试插入主键为空的数据：
+
+    INSERT INTO lineitemcopy1
+    values(null,0,0,null,0,0,0,0, 'a', 'b', '2020-01-01'::date,'2020-01-12'::date, '2020-01-15'::date,'name3', 'name4', 'name5');
+
+主键约束会自动为l_orderkey添加非空值约束，因此发生错误：
+   
+    ERROR:  null value in column "l_orderkey" violates not-null constraint
+
+尝试修改原有数据行 l_orderkey, l_linenumber 字段为空
+
+    UPDATE lineitemcopy1
+    SET l_orderkey=null, l_linenumber=null
+    WHERE l_orderkey =1 and l_linenumber=5;
+
+发生错误：
+   
+    ERROR:  null value in column "l_orderkey" violates not-null constraint
+
+尝试修改原有数据行 l_orderkey 字段和 l_linenumber 字段与表中已有其它元组的主属性取值相同：
+
+    UPDATE lineitemcopy1
+    SET l_linenumber =2
+    WHERE l_orderkey=1 and l_linenumber=1;
+
+由表中已存在l_orderkey=1 and l_linenumber=2的数据行，产生主键相同的数据行，因此发生错误：
+    
+    ERROR:  duplicate key value violates unique constraint "lineitemcopy1_pkey"
+
+尝试插入主键重复的数据：
+
+    INSERT INTO lineitemcopy1
+    values(1,0,0,2,0,0,0,0, 'a', 'b', '2020-01-01'::date,
+    '2020-01-01'::date, '2020-01-01'::date,'name3', 'name4', 'name5');
+
+发生错误：
+
+    ERROR:  duplicate key value violates unique constraint "lineitemcopy1_pkey"
+
+### 空值约束验证
+
+尝试插入一行l_extendedprice字段为空的数据
+
+    INSERT INTO lineitemcopy1
+    values(1,0,0,2,0,null,0,0, 'a', 'b', '2020-01-01'::date,
+    '2020-01-01'::date, '2020-01-01'::date,'name3', 'name4', 'name5');
+
+发生错误，l_extendedprice字段为空违反非空约束
+
+    ERROR:  null value in column "l_extendedprice" violates not-null constraint
+
+尝试修改原有数据行l_extendedprice字段为空
+
+同样发生错误
+
+    ERROR:  null value in column "l_extendedprice" violates not-null constraint
+
+### 外键完整性约束
+
+为方便起见，和前文中lineitem一样，分别创建关系表orders和customer的副本orderscopy和customercopy，并仅创建这两个表之间的外键约束，即`FOREIGN KEY (o_custkey) REFERENCES customercopy1(c_custkey)`，然后将数据导入进去
+
+使用查询语句判断两表间是否满足参照完整性约束：
+
+    select count(O_CUSTKEY)
+    from orderscopy1
+    where O_CUSTKEY not in (
+        select C_CUSTKEY
+        from customercopy1
+    );
+
+输出count为0，因此两表满足参照完整性约束。
+
+尝试向orderscopy表中插入一行数据，其O_CUSTKEY值设为0
+
+    insert into orderscopy1
+    values(1200001,0,'O',181580, '2019-01-02'::date,'5-LOW','Clerk#000000406',0,'special f');
+
+由于customercopy表中不存在C_CUSTKEY值为0的数据行，违反了外键约束，因此插入失败：
+
+    ERROR:  insert or update on table "orderscopy1" violates foreign key constraint "orderscopy1_o_custkey_fkey"
+
+尝试将orderscopy表中一行O_CUSTKEY值为7828的数据的O_CUSTKEY字段值修改为31000
+
+    UPDATE orderscopy1
+    SET O_CUSTKEY=31000
+    WHERE O_CUSTKEY=7828;
+
+由而customercopy表中并没有C_CUSTKEY值为31000的数据行，因此违反了外键约束，更新失败
+
+    ERROR:  insert or update on table "orderscopy1" violates foreign key constraint "orderscopy1_o_custkey_fkey"
+
+**在非级联外键约束条件下**
+
+尝试将customercopy表中一行C_CUSTKEY值为29980的数据的 C_CUSTKEY字段值修改为31001：
+
+    UPDATE customercopy1
+    SET C_CUSTKEY=31001
+    WHERE C_CUSTKEY=29980;
+
+由于orderscopy中存在O_CUSTKEY值为29980的数据行，违反外键约束，执行出错：
+
+    ERROR:  update or delete on table "customercopy1" violates foreign key constraint "orderscopy1_o_custkey_fkey" on table "orderscopy1"
+
+从customercopy表中删除C_CUSTKEY值为29980的数据行：
+
+    delete from customercopy1
+    where C_CUSTKEY=29980;
+
+由于orderscopy中存在O_CUSTKEY值为29980的数据行，违反外键约束，执行出错
+
+    ERROR:  update or delete on table "customercopy1" violates foreign key constraint "orderscopy1_o_custkey_fkey" on table "orderscopy1"
+
+**在级联外键约束条件下**
+
+为了重新定义级联的外键约束，首先删除原来的外键约束
+
+    alter table orderscopy1
+    drop constraint orderscopy1_o_custkey_fkey;
+
+重新定义orderscopy和customercopy之间的级联关联如下：
+
+    alter table orderscopy1
+    add constraint FK_O_CUSTKEY
+    foreign key(O_CUSTKEY) references customercopy1(C_CUSTKEY)
+    on delete cascade
+    on update cascade;
+
+再次尝试将customercopy表中一行C_CUSTKEY值为29980的数据的C_CUSTKEY字段值修改为31001，此时就更新成功了。
+
+查看ORDERS中O_CUSTKEY值为29980和31001的数据行：
+
+    select *
+    from orderscopy1
+    where O_CUSTKEY=29980;
+    select *
+    from orderscopy1
+    where O_CUSTKEY=31001;
+
+由于ORDERS中O_CUSTKEY值为29980的数据行的值也跟着改为31001，因此两个查询分别返回0和37个数据项。
+
+再次从customercopy表中删除C_CUSTKEY值为31001的数据行，也同样删除成功。
+
+查看ORDERS中O_CUSTKEY值为31001的数据行，返回0项数据，说明ORDERS中O_CUSTKEY值为31001的数据行也跟着被删除了。
+
+这就是级联和非级联的区别，级联外键关联下，当被参照关系中的主键发生修改，删除时，参照关系中的外键会跟着进行相应地修改，删除。
+
+### 函数依赖分析验证
+
+可以使用查询语句判断函数依赖P_BRAND→P_MFGR是否满足：
+
+    select max(a) as a_MFGR
+    from(
+        select count(DISTINCT P_MFGR) as a
+        from part
+        group by P_BRAND
+    );
+
+返回值为1，因此对于P_BRAND值相同的所有数据行，其P_MFGR值最多只有一个。满足函数依赖P_BRAND→P_MFGR。
+
+### 触发器约束
+
+由于触发器中禁止增删改操作的嵌套使用，因此为了完成实验需求，再对lineitemcopy表进行一个备份，新表为lineitemcopy_new。为了验证触发器正确性，删除新表上的相关约束。在实际应用中需保持两表的数据一致性，本实验仅验证触发器效果。
+
+
+首先需要创建将新数据插入到lineitemcopy中的触发器函数：
+
+    CREATE OR REPLACE FUNCTION tri_insert_func() RETURNS TRIGGER AS 
+    $$ DECLARE BEGIN 
+    INSERT INTO lineitemcopy1
+    VALUES (new.L_ORDERKEY, new.L_PARTKEY,new.L_SUPPKEY,new.L_LINENUMBER,new.L_QUANTITY,new.L_EXTENDEDPRICE,
+    new.L_DISCOUNT, new.L_TAX, new.L_RETURNFLAG, new.L_LINESTATUS, new.L_SHIPDATE, new.L_COMMITDATE,
+    new.L_RECEIPTDATE, new.L_SHIPINSTRUCT, new.L_SHIPMODE, new.L_COMMENT);
+    RETURN NEW; 
+    END $$ LANGUAGE PLPGSQL;
+
+然后在lineitemcopy_new上定义插入触发器，如果发货日期满足发货日期必须在预计到达日期和实际到达日期之前，则插入到 lineitemcopy中，若不满足条件，则不进行插入操作：
+
+    CREATE TRIGGER insert_trig_before BEFORE INSERT ON lineitemcopy1_new for EACH ROW
+    WHEN(new.l_shipdate <= new.l_commitdate and new.l_shipdate <= new.l_receiptdate)
+    EXECUTE PROCEDURE tri_insert_func();
+
+此时尝试向lineitemcopy_new插入一行数据，发货日期为2020年1月2日，预计到达日期和实际到达日期均为2020年1月1日。
+
+    INSERT INTO lineitemcopy1_new
+    values(4,0,0,2,0,0,0,0, 'a', 'b', '2020-01-02'::date,
+    '2020-01-01'::date, '2020-01-01'::date,'name3', 'name4', 'name5');
+
+使用查询语句分别检查表lineitemcopy1_new和表lineitemcopy：
+
+    select *
+    from lineitemcopy1_new
+    where l_orderkey=4 and l_linenumber=2;
+    select *
+    from lineitemcopy1
+    where l_orderkey=4 and l_linenumber=2;
+
+
+发现语句成功插入到表lineitemcopy1_new，但由于不满足约束条件，没有插入到lineitemcopy中。
+
+再插入一行发货日期为2020年1月2日，预计到达日期为2020年1 月3日，实际到达日期均为2020年1月4日的数据：
+
+    INSERT INTO lineitemcopy1_new
+    values(4,1,1,3,0,0,0,0, 'a', 'b', '2020-01-02'::date,'2020-01-03'::date, '2020-01-04'::date,'name3', 'name4', 'name5');
+
+再次使用查询语句分别检查表lineitemcopy1_new和表lineitemcopy，由于满足约束，数据成功插入到两个表中。
+
+再创建一个触发器函数用于修改改发货日期：
+
+    CREATE OR REPLACE FUNCTION tri_update_func() RETURNS TRIGGER AS 
+    $$ DECLARE BEGIN
+    UPDATE lineitemcopy1 
+    SET L_SHIPDATE =new. L_SHIPDATE
+    WHERE old. L_ORDERKEY = new. L_ORDERKEY and old. L_LINENUMBER = new. L_LINENUMBER;
+    RETURN NEW; 
+    END $$ LANGUAGE PLPGSQL;
+
+同样对lineitemcopy_new设置一个更新触发器，插入前比较发货日期与预计到达日期、实际到达日期，当发货日期满足约束时，将新值更新到lineitemcopy对应行中，否则不进行更新：
+
+    CREATE TRIGGER updata_trig_before BEFORE UPDATE ON lineitemcopy1_new for EACH ROW
+    WHEN(new.l_shipdate <= new.l_commitdate and new.l_shipdate <= new.l_receiptdate)
+    EXECUTE PROCEDURE tri_update_func();
+
+将刚才插入的订单 key 为 4，流水号为 3 的数据进行修改，发货日期新值为 2019-02-01：
+
+    UPDATE lineitemcopy1_new
+    SET l_shipdate='2019-02-01'::date
+    WHERE l_orderkey=4 and l_linenumber=3;
+
+由于满足条件，使用之前的查询语句分别检查表lineitemcopy1_new和表lineitemcopy，发现在两张表中数据都同样更新成功了。
+
+再将订单key为4，流水号为3的数据进行修改，PCI新值为 2020-02-01：
+
+    UPDATE lineitemcopy1_new
+    SET l_shipdate='2020-02-01'::date
+    WHERE l_orderkey=4 and l_linenumber=3;
+
+使用之前的查询语句分别检查表lineitemcopy1_new和表lineitemcopy，由于不满足条件，只有lineitemcopy1_new的数据项更新成功。
+
+## 实验总结
+
+通过本次实践，本人基本掌握了为表添加完整性约束的方法，学会通过查询语句判断完整性约束的正确性。通过实践，进一步了解了级联和非级联的区别。最后还尝试使用了触发器实现条件检测与过程的触发。
+
 
 # 数据库接口实验
 
