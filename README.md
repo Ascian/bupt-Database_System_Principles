@@ -792,8 +792,6 @@
 
 以下为更新语句：
 
-TODU
-
     update lineitem
     set l_receiptdate = l_commitdate
     from orders
@@ -1176,5 +1174,196 @@ from ORDERS;
 
 
 # 数据库接口实验
+
+## 实验目的
+
+* 通过编写数据库应用程序，培养数据库应用程序开发能力
+* 熟悉数据库应用程序设计的多种接口的配置，培养相关的软件配置能力
+
+## 实验环境
+
+本实验环境为 virtualBOX 虚拟机 openEuler20.03 系统上的openGauss1.1.0/openGauss2.0.0 数据库和华为云 GaussDB(openGauss)数据库，实验数据采用电商数据库的八张表。
+
+## 实验内容
+
+* 了解通用数据库应用编程接口（例如 JDBC、ODBC 等）的配置方法
+* 利用 C、Java 等高级程序设计语言编程实现简单的数据库应用程序，掌握基于 ODBC、JDBC 接口的数据库访问的基本原理和方法，访问 TPC-H 数据库，执行查找、增加、删除、更新等操作，掌握基于应用编程接口的数据库访问方法。
+
+本次实验选择使用JDBC完成接口实验。
+
+## 实验步骤
+
+首先需要为本地数据库配置好监听信息。
+
+通过gs命令语句将监听地址改为"*"（即全部）：
+
+    gs_guc reload -N db1 -I all -c "listen_addresses='*'"
+
+通过gs命令语句在数据库主节点配置文件中加入与IP地址对应的认证规则:
+
+    gs_guc reload -N all -I all -h "host all all 192.168.56.1/32 sha256"
+
+然后下载OpenGauss驱动包，并加入到IDEA工程中。
+
+由于使用初始用户omm连接数据可会报错：
+
+    FATAL: Forbid remote connection with initial user.
+
+因此需要创建一个新用户：
+
+    create user ascian password 'Ascian871';
+
+并将在所有表格上的所有权限授予给他：
+
+    grant all privilege to ascian;
+
+随后就可以通过编写java程序方式访问数据库。
+
+**查询**
+
+以下为获取表nation所有数据的java程序：
+
+    import java.sql.*;
+
+    public class Main{
+        static final String JDBC_DRIVER = "org.postgresql.Driver";
+        static final String DB_URL = "jdbc:postgresql://192.168.56.104:26000/postgres?ApplicationName=app1";
+        static final String USER = "ascian";
+        static final String PASS = "Ascian871";
+        public static void main(String[] args) {
+            System.out.println("java版本号："+ System.getProperty("java.version"));
+            Connection conn = null;
+            Statement stmt = null;
+            try{
+                // 注册 JDBC 驱动
+                Class.forName(JDBC_DRIVER);
+
+                // 打开链接
+                System.out.println("连接数据库...");
+                conn = DriverManager.getConnection(DB_URL,USER,PASS);
+                // 执行查询
+                System.out.println(" 实例化Statement对象...");
+                stmt = conn.createStatement();
+                String sql;
+                sql = "select n_nationkey ,n_name, n_regionkey, n_comment from nation";
+                ResultSet rs = stmt.executeQuery(sql);
+                System.out.print("nationkey name regionkey comment\n" );
+
+                // 展开结果集数据库
+                while(rs.next()){
+                    // 通过字段检索
+                    int nationkey = rs.getInt("n_nationkey");
+                    String name = rs.getString("n_name");
+                    int regionkey = rs.getInt("n_regionkey");
+                    String comment = rs.getString("n_comment");
+
+                    System.out.printf(" %-5d %-15s %-5d %s\n",nationkey ,name.trim(), regionkey,
+                            comment);
+                }
+                // 完成后关闭
+                rs.close();
+                stmt.close();
+                conn.close();
+            }catch(SQLException se){
+                // 处理 JDBC 错误
+                se.printStackTrace();
+            }catch(Exception e){
+                // 处理 Class.forName 错误
+                e.printStackTrace();
+            }finally{
+                // 关闭资源
+                try{
+                    if(stmt!=null) stmt.close();
+                }catch(SQLException se2){
+                }
+                try{
+                    if(conn!=null) conn.close();
+                }catch(SQLException se){
+                    se.printStackTrace();
+                }
+            }
+        }
+    }
+
+运行结果如下：
+
+![java_select结果](/img/java_select结果.png)
+
+**插入**
+
+插入一条n_nationkey为25，n_name为South Korea，n_regionkey为3的数据到数据库中只需将原java程序中的
+
+    String sql;
+    sql = "select n_nationkey ,n_name, n_regionkey, n_comment from nation";
+    ResultSet rs = stmt.executeQuery(sql);
+
+改为
+
+    stmt.executeUpdate("insert into nation values(25, 'South Korea', 3);");
+    ResultSet rs = stmt.executeQuery("select * from nation where n_nationkey = 25;");
+
+运行结果如下：
+
+![java_insert结果](/img/java_insert结果.png)
+
+**更新**
+
+将之前插入的数据中的n_regionkey更新为2，只需将`stmt.executeUpdate("insert into nation values(25, 'South Korea', 3);");`改为`stmt.executeUpdate("update nation set n_regionkey = 2 where n_nationkey = 25;");`
+
+运行结果如下：
+
+![java_update结果](/img/java_update结果.png)
+
+**删除**
+
+删除之前插入的数据，只需将`stmt.executeUpdate("update nation set n_regionkey = 2 where n_nationkey = 25;");`改为`stmt.executeUpdate("delete from nation where n_nationkey = 25;");`
+
+
+运行结果如下，返回了0条数据：
+
+![java_delete结果](/img/java_delete结果.png)
+
+    
+## 实验总结
+
+通过本次实践，本人基本掌握了使用java语言JDBC接口访问数据的方法，并尝试编写了程序对数据库表格进行查询，插入，更新和删除操作。
+
+实验中遇到的第一个问题就是在对openGauss本地数据库配置好监听信息后，java程序依旧无法连接上数据库，报错`FATAL: Connection to 192.168.56.104:26000 refused. Check that hostname and port are correct and that the postmaster is accepting TCP/IP connection.`。分析原因是由于配置修改还未生效导致，使用命令`gs_om -t restart`重启数据库后，java程序便可以成功连接上数据库。
+
+第二个问题就是java程序无法使用初始omm用户访问数据库，需要新创建一个用户，并将所用权限赋予给他。通过这个新用户才可以正常访问数据库。
+
+最后一个问题就是，插入、删除和更新这类修改数据库的语句，应当使用`executeUpdate`函数执行。若使用`executeQuery`函数执行，虽然也能执行成功，但会报错`org.postgresql.util.PSQLException: 查询没有传回任何结果`，导致程序没法继续正常运行。
+
+
+# 数据库物理文件
+
+## 实验目的
+
+* 掌握用 winSCP 连接 openEuler 系统
+* 学会在本地与 openEuler 间上传与下载文件
+
+## 实验环境
+
+本实验环境为 virtualBOX 虚拟机 openEuler20.03 系统上 openGauss1.1.0/openGauss2.0.0 数据库
+
+## 实验内容
+
+* 安装 WinSCP
+* 连接 openEuler
+
+## 实验步骤
+
+首先在官网下载并安装WinSCP。
+
+然后用 root 用户在虚拟机上登录 openEuler 系统
+
+随后打开WinSCP，输入IP地址 192.168.56.104 并用户名 root 和对应密码，点击登录。
+
+成功登录后，就可以随意在本地计算机和虚拟主机键传输文件了，同时可以更方便的管理虚拟机上的文件。
+
+在关闭WinSCP时保存工作区，在下次使用时就可以直接登录了。
+
+## 实验总结
+
 
 # 事务及其并发控制实验
