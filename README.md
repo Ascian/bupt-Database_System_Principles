@@ -1,11 +1,3 @@
-<w:sdt><w:sdtPr><w:docPartObj><w:docPartGallery w:val="Table of Contents" /><w:docPartUnique /></w:docPartObj></w:sdtPr><w:sdtContent><w:p><w:pPr><w:pStyle w:val="TOC" /></w:pPr><w:r><w:t xml:space="preserve">目录</w:t></w:r></w:p><w:p><w:r><w:fldChar w:fldCharType="begin" w:dirty="true" /><w:instrText xml:space="preserve">TOC \o &quot;2-3&quot; \h \z \u</w:instrText><w:fldChar w:fldCharType="separate" /><w:fldChar w:fldCharType="end" /></w:r></w:p></w:sdtContent></w:sdt>
-
-<w:p>
-<w:r>
-    <w:br w:type="page"/>
-  </w:r>
-</w:p>
-
 ## 1 数据库实验平台OpenEuler的安装、OpenGauss数据库的安装即配置实验
 
 ### 1.1 实验目的
