@@ -888,7 +888,7 @@ from ORDERS;
     FOREIGN KEY (L_SUPPKEY) REFERENCES SUPPLIER(S_SUPPKEY)
     );
 
-![create建立约束](/img/create建立约束.png)
+![create建立约束](img/create建立约束.png)
 
 可以看到完整性约束建立成功。
 
@@ -906,7 +906,7 @@ from ORDERS;
 
     alter table LINEITEMcopy2 add constraint LINEITEMcopy2_L_SUPPKEY_FKEY foreign key (L_SUPPKEY) references SUPPLIER;
 
-![alter建立约束](/img/alter建立约束.png)
+![alter建立约束](img/alter建立约束.png)
 
 可以看到成功建立了和LINEITEMcopy1一样的完整性约束
 
@@ -1287,7 +1287,7 @@ from ORDERS;
 
 运行结果如下：
 
-![java_select结果](/img/java_select结果.png)
+![java_select结果](img/java_select结果.png)
 
 **插入**
 
@@ -1304,7 +1304,7 @@ from ORDERS;
 
 运行结果如下：
 
-![java_insert结果](/img/java_insert结果.png)
+![java_insert结果](img/java_insert结果.png)
 
 **更新**
 
@@ -1312,7 +1312,7 @@ from ORDERS;
 
 运行结果如下：
 
-![java_update结果](/img/java_update结果.png)
+![java_update结果](img/java_update结果.png)
 
 **删除**
 
@@ -1321,7 +1321,7 @@ from ORDERS;
 
 运行结果如下，返回了0条数据：
 
-![java_delete结果](/img/java_delete结果.png)
+![java_delete结果](img/java_delete结果.png)
 
     
 ## 实验总结
@@ -1383,7 +1383,7 @@ from ORDERS;
 
 通过 WinSCP 打开文件夹路径`/var/log/gaussdb/omm/pg_log/dn_6001`，文件夹内便是运行时日志。
 
-![运行时日志](/img/运行时日志.png)
+![运行时日志](img/运行时日志.png)
 
 运行时日志的命名规则为：postgresql-创建时间.log。默认情况下，每日 0 点或者日志文件大于 16MB 或者数据库实例（数据库节点）重新启动后，会生成新的日志文件。
 
@@ -1397,7 +1397,7 @@ from ORDERS;
 
 通过 WinSCP 打开文件夹路径`/var/log/gaussdb/omm/om`，文件夹内便是安装和卸载时日志。
 
-![安装和卸载时日志](/img/安装和卸载时日志.png)
+![安装和卸载时日志](img/安装和卸载时日志.png)
 
 若要在虚拟机内查看，切换到用户 omm 使用命令`cd /$gaussdbLogPath/omm/om`也可查看到安装和卸载时日志文件。
 
@@ -1405,11 +1405,11 @@ from ORDERS;
 
 通过 WinSCP 打开文件夹路径`/var/log/gaussdb/omm/bin。
 
-![操作日志](/img/操作日志.png)
+![操作日志](img/操作日志.png)
 
 文件夹内包含四种文件夹，每个文件夹对应一个工具的操作日志，以 gs_guc 操作为例，打开文件夹`gs_guc`，内部便是 gs_guc 的操作日志文件。
 
-![gs_guc操作日志](/img/gs_guc操作日志.png)
+![gs_guc操作日志](img/gs_guc操作日志.png)
 
 操作日志的命名规则为:历史日志文件名为"工具名-日志创建时间间.log"，当前日志文件名为"工具名-日志创建时间-current.log"。如果日志大小超过 16MB，在下一次调用该工具时，会重命名当前日志文件为历史日志文件，并以当前时间生成新的当前日志文件。
 
@@ -1444,7 +1444,7 @@ from ORDERS;
 
 可以命令`SHOW audit_enabled;`检查审计总开关状态。
 
-![审计开关](/img/审计开关.png)
+![审计开关](img/审计开关.png)
 
 返回结果为 on，因此审计总开关处于打开状态。
 
@@ -1452,7 +1452,7 @@ from ORDERS;
 
 可以使用`SHOW 审计项参数`的方式检查各审计项参数，例如输入命令`SHOW audit_login_logout;`
 
-![审计项开关](/img/审计项开关.png)
+![审计项开关](img/审计项开关.png)
 
 若需要修改审计项，退出数据库后输入命令`gs_guc reload -N all -I all -c "audit_login_logout=0"`可以修改 audit_login_logout 值变为 0。
 
@@ -1480,7 +1480,7 @@ from ORDERS;
 
 通过 WinSCP 打开文件夹路径`/gaussdb/data/db1/pg_xlog`，文件夹内便是WAL日志。
 
-![WAL日志](/img/WAL日志.png)
+![WAL日志](img/WAL日志.png)
 
 WAL 日志的命名规则为：日志文件以段文件的形式存储的，每个段为 16MB，并分割成若干页，每页 8KB。每个段文件的名称由 24 个十六进制组成，分为三个部分，每个部分由 8 个十六进制字符组成(这些数字一般情况下是顺序增长使用的，但也存在循环使用的情况)。第一部分表示时间线，第二部分表示日志文件标号，第三部分表示日志文件的段标号。
 
@@ -1490,7 +1490,7 @@ WAL 日志的命名规则为：日志文件以段文件的形式存储的，每�
 
 通过 WinSCP 打开文件夹路径`/var/log/gaussdb/omm/gs_profile/dn_6001`，文件夹内便是性能日志。
 
-![性能日志](/img/性能日志.png)
+![性能日志](img/性能日志.png)
 
 性能日志的命名规则为：postgresql-创建时间.prf。默认情况下，每日 0 点或者日志文件大于 20MB 或者数据库实例（数据库节点）重新启动后，会生成新的日志文件。
 
@@ -1501,6 +1501,316 @@ WAL 日志的命名规则为：日志文件以段文件的形式存储的，每�
 ## 实验总结
 
 通过本次实验，本人了解了各种日志的区别和作用，并学会如何查看各类日志的内容。同时，了解了审计日志的作用，学会如何通过配置审计项获取需要的日志信息，懂得如何删除，备份审计日志。
+
+# 数据库物理设计实验
+
+## 实验目的
+
+* 学会创建多个表空间，并在不同的表空间上创建对象
+* 对表空间进行查询，删除等管理操作
+* 学会创建分区表，并向表中插入数据，进行观察
+* 对分区表进行重命名，删除等管理操作
+* 学会在普通表上创建管理索引
+* 学会在分区表上创建管理索引
+
+## 实验环境
+
+本实验环境为 virtualBOX 虚拟机 openEuler20.03 系统上的 openGauss1.1.0/openGauss2.0.0 数据库
+
+## 实验内容
+
+* 创建表空间
+* 管理表空间
+* 创建分区表
+* 管理分区表
+* 普通表上创建管理索引
+* 分区表上创建管理索引
+
+## 实验步骤
+
+### 创建表空间
+
+首先创建表空间:
+
+    CREATE TABLESPACE fastspace RELATIVE LOCATION 'tablespace/tablespace_1';
+
+其中`fastspace`为新创建的表空间，`$dataNode/pg_location/tablespace/tablespace_1_`是用户拥
+有读写权限的空目录。
+
+使用如下命令可以将表空间的`CRAETE`权限赋予用户：
+
+    GRANT CREATE ON TABLESPACE fastspace TO ascian;
+
+在`create`语句中加入`tablespace`就可以在特定的表空间上创建表：
+
+    CREATE TABLE table_1(i int) TABLESPACE fastspace;
+
+可以通过以下语句设置默认表空间：
+
+    SET default_tablespace = 'fastspace';
+
+未来不加`tablespace`的`create`语句就会将表创建在表空间`fastspace`内。
+
+### 管理表空间
+
+使用如下语句可以查询到全部表空间：
+
+    SELECT spcname FROM pg_tablespace;
+
+![全部表空间](img/%E5%85%A8%E9%83%A8%E8%A1%A8%E7%A9%BA%E9%97%B4.png)
+
+
+或者使用 gsql 程序的元命令`\db`
+
+![元命令查询表空间](img/%E5%85%83%E5%91%BD%E4%BB%A4%E6%9F%A5%E8%AF%A2%E8%A1%A8%E7%A9%BA%E9%97%B4.png)
+
+使用以下命令可以查询表空间当前使用情况：
+
+     SELECT PG_TABLESPACE_SIZE('fastspace');
+
+![表空间空间使用情况](img/%E8%A1%A8%E7%A9%BA%E9%97%B4%E7%A9%BA%E9%97%B4%E4%BD%BF%E7%94%A8%E6%83%85%E5%86%B5.png)
+
+使用以下命令可以为表空间重命名：
+
+    ALTER TABLESPACE fastspace RENAME TO example;
+
+使用以下命令可以删除表空间：
+
+    DROP TABLESPACE example;
+
+删除失败，报错`ERROR:  tablespace "example" is not empty`
+
+只有当表空间为空时才允许删除表空间。
+
+### 创建分区表
+
+第一种方法，使用`VALUES LESS THAN`的方式，语法格式如下：
+
+    PARTITION BY RANGE(partition_key)
+    (
+        PARTITION partition_name VALUES LESS THAN ( { partition_value | MAXVALUE } ),
+        ...
+    )
+
+创建一个 orders 的分区表：
+
+    create table partition_orders_1(
+    o_orderkey integer,
+    PRIMARY KEY (o_orderkey)
+    )
+    partition by range(o_orderkey)
+    (
+    partition p1 values less than(100),
+    partition p2 values less than(200),
+    partition p3 values less than(300),
+    partition p4 values less than(maxvalue)
+    );
+
+使用可以`select`命令列出各分区情况:
+
+    select relname,parttype,parentid,boundaries from pg_partition where parentid in(select oid from pg_class 
+    where relname='partition_orders_1');
+
+![分区情况](img/%E5%88%86%E5%8C%BA%E6%83%85%E5%86%B5.png)
+
+第二种方法，使用`START END`的方式，语法格式如下：
+
+    PARTITION BY RANGE(partition_key)
+    (
+        PARTITION partition_name {START(partition_value) END(partition_value) EVERY(interval_value)} | {START(partition_value) END(partition_value | MAXVALUE)} | {START(partition_value)} | {END(partition_value | MAXVALUE)},
+        ...
+    )
+
+创建一个 orders 的分区表：
+
+    create table partition_orders_2(
+    o_orderkey integer,
+    PRIMARY KEY (o_orderkey)
+    )
+    partition by range(o_orderkey)
+    (
+    partition p1 start(2) end(100) every(10),
+    partition p2 end(200),
+    partition p3 end(300),
+    partition p4 start(300),
+    partition p5 start(400),
+    partition p6 start(500) end(600)
+    );
+
+使用可以`select`命令列出各分区情况
+
+![分区情况2](img/%E5%88%86%E5%8C%BA%E6%83%85%E5%86%B5.png)
+
+第二种方法，使用` INTERVAL`的方式，语法格式如下：
+
+    PARTITION BY RANGE(partition_key)
+    NTERVAL ('interval_expr') [STORE IN (tablespace_name [, ... ])]
+    (
+        ...
+    )
+
+创建一个 orders 的分区表：
+
+    create table partition_orders_3(
+    o_orderkey integer,
+    o_orderdate date,
+    PRIMARY KEY (o_orderkey, o_orderdate)
+    )
+    partition by range(o_orderdate)
+    interval('1 day')
+    (
+    partition p1 values less than('2021-03-08 00:00:00'),
+    partition p2 values less than('2021-03-09 00:00:00')
+    );
+
+一开始创建的分区只有 p1,p2，若向表中插入入键值不在已有分区范围内的元组`insert into partition_orders_3 values (1, '2021-03-11 00:00:00');`
+
+![分区情况3](img/分区情况3.png)
+
+可见，自动生成了 1 个新的分区，上界为 ‘2021-03-12 00:00:00’，与插入元组间隔为 1 day。
+
+在创建分区时加上`tablespace`语句就可以设置分区所在表空间：
+
+    create table partition_orders_4(
+    o_orderkey integer,
+    PRIMARY KEY (o_orderkey)
+    )
+    tablespace example2
+    partition by range(o_orderkey)
+    (
+    partition p1 values less than(100),
+    partition p2 values less than(200) tablespace example4,
+    partition p3 values less than(300),
+    partition p4 values less than(maxvalue)
+    );
+
+此分区表，分区 p1，p3，p4 都在表空间 example2 中，而分区 p2 在表空间 example4 中
+
+### 管理分区表
+
+删除单个分区：
+
+    ALTER TABLE partition_orders_4 DROP PARTITION p4;
+
+添加分区：
+
+     ALTER TABLE partition_orders_4 ADD PARTITION p_4 VALUES LESS THAN(MAXVALUE);
+
+重命名分区：
+
+     ALTER TABLE partition_orders_4 RENAME PARTITION p3 TO p_3;
+
+修改分区原来的表空间：
+
+     ALTER TABLE partition_orders_4 MOVE PARTITION p1 TABLESPACE example4;
+
+![分区情况4](img/%E5%88%86%E5%8C%BA%E6%83%85%E5%86%B54.png)
+
+若想要查询单独分区内的数据：
+
+    SELECT * FROM partition_orders_4 PARTITION(p2);
+
+或者
+
+     SELECT * FROM partition_orders_4 PARTITION FOR(150);
+
+![查看分区](img/%E6%9F%A5%E7%9C%8B%E5%88%86%E5%8C%BA.png)
+
+###  普通表上创建管理索引
+
+首先创建建 orders 表的备份 orderscopy2，并将数据导入。
+
+对于 orderscopy2 表，需要经常使用查询条件`WHERE o_totalprice>10000`，可以使用以下命令创建普通索引：
+
+     CREATE INDEX orderscopy2_index_totalprice ON orderscopy2(o_totalprice);
+
+创建多字段索引：
+
+    CREATE INDEX orderscopy2_index_more_column ON orderscopy2(o_orderstatus, o_totalprice);
+
+
+创建部分索引：
+
+     CREATE INDEX orderscopy2_part_index ON orderscopy2(o_orderstatus) WHERE o_orderstatus='O';
+
+创建表达式索引：
+
+    CREATE INDEX orderscopy2_para_index ON orderscopy2(reverse(o_clerk) varchar_pattern_ops);
+
+可以使用如下命令查询系统和用户定义的所有索引：
+
+    SELECT RELNAME FROM PG_CLASS WHERE RELKIND='i';
+
+![所有索引](img/%E6%89%80%E6%9C%89%E7%B4%A2%E5%BC%95.png)
+
+查询指定索引的信息:
+
+    \di+ orderscopy2_index_totalprice;
+
+![指定索引](img/%E6%8C%87%E5%AE%9A%E7%B4%A2%E5%BC%95.png)
+
+重命名索引:
+
+     ALTER INDEX orderscopy2_index_more_column RENAME TO orderscopy2_index_orderstatus_totalprice;
+
+删除索引:
+
+     DROP INDEX orderscopy2_para_index;
+
+### 分区表上创建管理索引
+
+首先以 orders 表为例创建一个分区表 partition_orders_0。、
+
+创建 GLOBAL 索引：
+
+    create index global_index_custkey on partition_orders_0(o_custkey) global tablespace example2;
+
+![创建全局索引](img/%E5%88%9B%E5%BB%BA%E5%85%A8%E5%B1%80%E7%B4%A2%E5%BC%95.png)
+
+用 WinSCP 可以看到，只有一个索引文件。
+
+创建不指定索引分区名称的 LOCAL 索引：
+
+    create index local_index_totalprice on partition_orders_0(o_totalprice) local tablespace example3;
+
+用 WinSCP 看出，有 4 个索引文件。
+
+![不指定索引分区索引](img/%E4%B8%8D%E6%8C%87%E5%AE%9A%E7%B4%A2%E5%BC%95%E5%88%86%E5%8C%BA%E7%B4%A2%E5%BC%95.png)
+
+创建指定索引分区名称的 LOCAL 索引：
+
+    create index local_index_shippriority on partition_orders_0(o_shippriority) local
+    (
+    partition p1_index,
+    partition p2_index,
+    partition p3_index tablespace example4,
+    partition p4_index tablespace example4
+    ) tablespace example3;
+
+用 WinSCP 看到，分别在 example3 有 2 个索引文件和 example4 有 2 个索引文件。
+
+![分区3索引](img/%E5%88%86%E5%8C%BA3%E7%B4%A2%E5%BC%95.png)
+
+![分区4索引](img/%E5%88%86%E5%8C%BA4%E7%B4%A2%E5%BC%95.png)
+
+修改索引分区所在的表空间：
+
+    ALTER INDEX local_index_shippriority MOVE PARTITION p1_index TABLESPACE example2;
+
+重命名索引分区：
+
+    ALTER INDEX local_index_shippriority RENAME PARTITION p2_index TO p2_index_new;
+
+删除索引，要删除索引只能删除整个索引，不能删除单独的分区索引：
+
+    drop index global_index_custkey;
+
+![删除索引](img/%E5%88%A0%E9%99%A4%E7%B4%A2%E5%BC%95.png)
+
+## 实验总结
+
+通过本实验学会了表空间和分区表的使用，了解了索引创建和管理方法。
+按照实验指导书的流程完成实验，并没有遇到什么问题。
 
 
 # 事务及其并发控制实验
