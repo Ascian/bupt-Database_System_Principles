@@ -1,84 +1,3 @@
-- [数据库实验平台OpenEuler的安装、OpenGauss数据库的安装即配置实验](#数据库实验平台openeuler的安装opengauss数据库的安装即配置实验)
-  - [实验目的](#实验目的)
-  - [实验环境](#实验环境)
-  - [实验内容](#实验内容)
-  - [实验步骤](#实验步骤)
-  - [实验总结](#实验总结)
-- [OpenGauss数据库建表及数据导入实验](#opengauss数据库建表及数据导入实验)
-  - [实验目的](#实验目的-1)
-  - [实验环境](#实验环境-1)
-  - [实验内容](#实验内容-1)
-  - [实验步骤](#实验步骤-1)
-    - [创建关系表](#创建关系表)
-    - [数据导入](#数据导入)
-  - [实验总结](#实验总结-1)
-- [数据查询与修改实验](#数据查询与修改实验)
-  - [实验目的](#实验目的-2)
-  - [实验环境](#实验环境-2)
-  - [实验内容](#实验内容-2)
-  - [实验步骤](#实验步骤-2)
-    - [单表简单查询](#单表简单查询)
-    - [多表查询](#多表查询)
-    - [统计查询](#统计查询)
-    - [嵌套查询](#嵌套查询)
-    - [with 临时视图查询](#with-临时视图查询)
-    - [键/函数依赖分析](#键函数依赖分析)
-    - [表的插入、删除、更新](#表的插入删除更新)
-  - [实验总结](#实验总结-2)
-- [数据库完整性约束实验](#数据库完整性约束实验)
-  - [实验目的](#实验目的-3)
-  - [实验环境](#实验环境-3)
-  - [实验内容](#实验内容-3)
-  - [实验步骤](#实验步骤-3)
-    - [建立完整性约束](#建立完整性约束)
-    - [主键约束验证](#主键约束验证)
-    - [空值约束验证](#空值约束验证)
-    - [外键完整性约束](#外键完整性约束)
-    - [函数依赖分析验证](#函数依赖分析验证)
-    - [触发器约束](#触发器约束)
-  - [实验总结](#实验总结-3)
-- [数据库接口实验](#数据库接口实验)
-  - [实验目的](#实验目的-4)
-  - [实验环境](#实验环境-4)
-  - [实验内容](#实验内容-4)
-  - [实验步骤](#实验步骤-4)
-  - [实验总结](#实验总结-4)
-- [数据库物理文件实验](#数据库物理文件实验)
-  - [实验目的](#实验目的-5)
-  - [实验环境](#实验环境-5)
-  - [实验内容](#实验内容-5)
-  - [实验步骤](#实验步骤-5)
-    - [运行时日志](#运行时日志)
-    - [安装和卸载时日志](#安装和卸载时日志)
-    - [操作日志](#操作日志)
-    - [审计日志](#审计日志)
-    - [WAL日志](#wal日志)
-    - [性能日志](#性能日志)
-  - [实验总结](#实验总结-5)
-- [数据库物理设计实验](#数据库物理设计实验)
-  - [实验目的](#实验目的-6)
-  - [实验环境](#实验环境-6)
-  - [实验内容](#实验内容-6)
-  - [实验步骤](#实验步骤-6)
-    - [创建表空间](#创建表空间)
-    - [管理表空间](#管理表空间)
-    - [创建分区表](#创建分区表)
-    - [管理分区表](#管理分区表)
-    - [普通表上创建管理索引](#普通表上创建管理索引)
-    - [分区表上创建管理索引](#分区表上创建管理索引)
-  - [实验总结](#实验总结-6)
-- [数据库查询优化实验](#数据库查询优化实验)
-  - [实验目的](#实验目的-7)
-  - [实验环境](#实验环境-7)
-  - [实验内容](#实验内容-7)
-  - [实验步骤](#实验步骤-7)
-    - [执行计划的查看与分析](#执行计划的查看与分析)
-    - [观察视图查询、with 临时视图查询的执行计划](#观察视图查询with-临时视图查询的执行计划)
-    - [优化 SQL 语句](#优化-sql-语句)
-  - [实验总结](#实验总结-7)
-- [事务及其并发控制实验](#事务及其并发控制实验)
-
-
 # 数据库实验平台OpenEuler的安装、OpenGauss数据库的安装即配置实验
 
 ## 实验目的
@@ -2351,3 +2270,532 @@ WAL 日志的命名规则为：日志文件以段文件的形式存储的，每�
 按照实验指导书的流程完成实验，并没有遇到什么问题。
 
 # 事务及其并发控制实验
+
+## 实验目的
+
+通过单事务、串行事务、并发事务实验，了解 openGauss 数据库中
+
+* 事务组成方式和执行模式；
+* 对单事务和串行事务的原子性保障机制；
+* 基于锁和隔离级别的事务并发控制和对并发事务的一致性、独立性保障机制。
+
+## 实验环境
+
+本实验环境为 virtualBOX 虚拟机 openEuler20.03 系统上的 openGauss1.1.0/openGauss2.0.0 数据库，实验数据采用 TPC-H 供应商和采购商数据库的八张表。
+
+## 实验内容
+
+* 通过 update 操作对现有关系表进行修改，观察违反 check 约束的 update 执行结果，理解 openGauss 对单个事务提供的原子性保障机制；
+* 在 openGauss 两种事务执行模式下，完成串行事务提交与回滚实验，对数据库表进行查询（select）、更新（update）、插入(insert)、删除(delete)，了解 openGauss 事务组成方式和 commit/rollback 对查询结果的影响，了解数据库内容/状态发生变化时 openGauss 提供的事务原子性的保障机制；
+* 在显式执行模式下，通过串行执行多个事务，对现有数据库表增加、删除属性列，观察 commit/rollback对执行结果的影响，了解数据库模式结构发生变化时 openGauss 提供的事务原子性保障机制；
+* 观察单事务或串行事务中保存点（Save Point）回滚 rollback 对数据库访问结果的影响，了解 openGauss保存点机制；
+* 观察 openGauss 的加锁机制，包括对数据库、关系表、数据行等不同粒度的数据对象所施加的各种不同类型的锁；
+* 了解 openGauss 提供的各种事务隔离级别。观察分析在“读提交”隔离级别下，并发事务执行导致的数据不一致性，如丢失修改（写-写错误）、读脏数据（写-读错误）、不可重复读（读-写错误）、幻象；
+* 分析对比多种隔离级别下，如“读提交”与“可重复读”，并发事务执行导致的数据不一致性，了解 openGauss提供的事务一致性和独立性保障机制。
+
+## 实验步骤
+
+### 单事务与串行事务
+
+**违反 check 约束的 update 操作**
+
+为方便起见，创建 partsupp 表的副本 partsupp_1，partsupp_2，并将 partsupp 表的数据导入进去。
+
+然后添加约束保证 PS_AVAILQTY >=0：
+
+    alter table partsupp_1 add constraint partsupp_chk_1 check(PS_AVAILQTY >=0);
+    alter table partsupp_2 add constraint partsupp_chk_2 check(PS_AVAILQTY >=0);
+
+对于零件供应数量小于 10 的数据将 PS_AVAILQTY 设置为当前值减去 8：
+
+    update partsupp_1
+    set PS_AVAILQTY=PS_AVAILQTY-8
+    where PS_AVAILQTY<10;
+
+报错
+
+    ERROR:  new row for relation "partsupp_1" violates check constraint "partsupp_chk_1"
+    DETAIL:  Failing row contains (1, 2, -7, 771.64, , even theodolites. regular, final theodolites eat after the car...).
+
+且使用查询语句发现更新前后数据么有发生变化。
+
+然后尝试将实验内容在 partsupp_2 表上组织成事务执行：
+
+    START TRANSACTION;
+    select *
+    from partsupp_2
+    where PS_AVAILQTY<10;
+    update partsupp_2
+    set PS_AVAILQTY=PS_AVAILQTY-8
+    where PS_AVAILQTY<10;
+    select *
+    from partsupp_2
+    where PS_AVAILQTY<10;
+    END;
+
+依旧报和之前一样的错，且更新之后的查询语句由于事务的回滚并没有执行，报错`ERROR:  current transaction is aborted, commands ignored until end of transaction block, firstChar[Q]`。再次用查询语句发现数据项为发生改变。
+
+当执行 update 语句之后发现报错，check 约束不合法，会导致回滚，单语句顺序执行的话，会导致单语句回滚，事务执行的话，则是整个事务回滚，说明当有 check 约束时，某行更新失败会使得整条语句（或者整个事务）全部回滚，并非是只跳过 check 不通过的那些行。
+
+**事务 commit/rollback 操作**
+
+以 commit 结束的 T1 事务：
+
+    START TRANSACTION;
+    select PS_PARTKEY,PS_SUPPLYCOST
+    from partsupp_1
+    where PS_PARTKEY between '2020' and '2022';
+    update partsupp_1
+    set PS_SUPPLYCOST=200
+    where PS_PARTKEY between '2020' and '2022';
+    select PS_PARTKEY,PS_SUPPLYCOST
+    from partsupp_1
+    where PS_PARTKEY between '2020' and '2022';
+    commit;
+
+![以commit结束的T1事务](img/%E4%BB%A5commit%E7%BB%93%E6%9D%9F%E7%9A%84T1%E4%BA%8B%E5%8A%A1.png)
+
+共查询到 12 条数据，并将 PS_SUPPLYCOST 更新为 200，更新成功，并将事务提交。
+
+再次使用查询语句发现数据为更新后的语句。
+
+以 rollback 结束的 T1 事务：
+
+    START TRANSACTION;
+    select PS_PARTKEY,PS_SUPPLYCOST
+    from partsupp_2
+    where PS_PARTKEY between '2020' and '2022';
+    update partsupp_2
+    set PS_SUPPLYCOST=200
+    where PS_PARTKEY between '2020' and '2022';
+    select PS_PARTKEY,PS_SUPPLYCOST
+    from partsupp_2
+    where PS_PARTKEY between '2020' and '2022';
+    rollback;
+
+![以rollback结束的T1事务](img/%E4%BB%A5rollback%E7%BB%93%E6%9D%9F%E7%9A%84T1%E4%BA%8B%E5%8A%A1.png)
+
+共查询到 12 条数据，并将 EARFCN 更新为 38950，更新成功，并将事务回滚。
+
+使用查询语句发现数据为更新前的语句，事务回滚后，更新无效。
+
+**修改数据库模式**
+
+以 commit 结束删除 PS_AVAILQTY 列：
+
+    START TRANSACTION;
+    alter table partsupp_1 drop column PS_AVAILQTY;
+    COMMIT;
+
+查看 PS_AVAILQTY 列：
+
+    select PS_AVAILQTY from partsupp_1;
+
+报错：
+
+    ERROR:  column "ps_availqty" does not exist
+    LINE 1: select PS_AVAILQTY from partsupp_1;
+               ^
+    CONTEXT:  referenced column: ps_availqty
+
+事务提交后，删除操作有效。
+
+以 rollback 结束删除 PS_AVAILQTY 列：
+
+    START TRANSACTION;
+    alter table partsupp_2 drop column PS_AVAILQTY;
+    ROLLBACK;
+
+查看 PS_AVAILQTY 列发现该列未被删除，事务回滚，删除操作无效。
+
+![以rollback结束删除PS_AVAILQTY列](img/%E4%BB%A5rollback%E7%BB%93%E6%9D%9F%E5%88%A0%E9%99%A4PS_AVAILQTY%E5%88%97.png)
+
+以 commit 结束增加 PS_AVAILQTY_NEW 列:
+
+    START TRANSACTION;
+    alter table partsupp_1 add column PS_AVAILQTY_NEW integer;
+    COMMIT;
+
+查看 PS_AVAILQTY_NEW 列，显示该列存在，内容为空，事务提交后，增加操作有效。
+
+![以commit结束增加PS_AVAILQTY_NEW列](img/%E4%BB%A5commit%E7%BB%93%E6%9D%9F%E5%A2%9E%E5%8A%A0PS_AVAILQTY_NEW%E5%88%97.png)
+
+以 rollback 结束增加 PS_AVAILQTY_NEW 列:
+
+    START TRANSACTION;
+    alter table partsupp_2 add column PS_AVAILQTY_NEW integer;
+    ROLLBACK;
+
+查看 PS_AVAILQTY_NEW 列报错：
+
+    ERROR:  column "ps_availqty_new" does not exist
+    LINE 1: select PS_AVAILQTY_NEW from partsupp_2;
+                ^
+    CONTEXT:  referenced column: ps_availqty_new
+
+显示该列不存在，事务回滚，增加操作无效。
+
+**多条 insert/delete 操作执行比较**
+
+为了后续实验，删除表 partsupp_1，partsupp_2，并重新传建创建 partsupp 表的副本 partsupp_1，partsupp_2，将 partsupp 表的数据导入进去
+
+先插入一条PS_PARTKEY 为“2022”，PS_SUPPKEY
+为“2022”的数据，然后再删除它，并在前后加上查询语句：
+
+    select PS_PARTKEY,PS_SUPPKEY,PS_AVAILQTY
+    from partsupp_1
+    where PS_AVAILQTY<10;
+
+    INSERT INTO partsupp_1
+    values(2022,2022,7,0,'comment');
+
+    delete from partsupp_1
+    where PS_PARTKEY='2022' and PS_SUPPKEY='2022' ;
+
+    select PS_PARTKEY,PS_SUPPKEY,PS_AVAILQTY
+    from partsupp_1
+    where PS_AVAILQTY<10;
+
+顺序执行执行后，发现两次查询结果相同。
+
+组织成事务执行，将其用`START TRANSACTION;`和`COMMIT;`包围后执行，两次查询结果还是相同。
+
+说明多条 insert/delete 操作的显式事务操作跟隐式事务操作的结果集一样。
+
+**保存点 Savepoint 设置与回滚实验**
+
+在插入操作之后设置了保存点：
+
+    START TRANSACTION;
+    select PS_PARTKEY,PS_SUPPKEY,PS_AVAILQTY
+    from partsupp_1
+    where PS_AVAILQTY<10;
+    INSERT INTO partsupp_1
+    values(2022,2022,7,0,'comment');
+    savepoint sp;
+    delete from partsupp_1
+    where PS_PARTKEY='2022' and PS_SUPPKEY='2022' ;
+    rollback to sp;
+    COMMIT;
+
+使用查询语句查看发现，局部回滚到了上一个保存点，也就是删除之前，因此插入数据未被删除。
+
+![在插入操作之后设置了保存点](img/在插入操作之后设置了保存点.png)
+
+**事务内某条语句执行失败对其余语句的影响**
+
+首先在 partsupp_1 表上加入 PS_AVAILQTY >= 0 的约束
+
+    alter table partsupp_1 add constraint partsupp_chk_1 check(PS_AVAILQTY>=0);
+
+
+然后插入数据，并更新 PS_AVAILQTY 的值：
+
+    START TRANSACTION;
+    select PS_PARTKEY,PS_SUPPKEY,PS_AVAILQTY
+    from partsupp_1
+    where PS_AVAILQTY<10;
+
+    INSERT INTO partsupp_1
+    values(999999,999999,7,0,'comment');
+
+    update partsupp_1
+    set PS_AVAILQTY=PS_AVAILQTY-8
+    where PS_AVAILQTY<10;
+    COMMIT;
+
+查询在上面事务中插入的数据：
+
+    select PS_PARTKEY,PS_SUPPKEY,PS_AVAILQTY
+    from partsupp_1
+    where PS_PARTKEY='999999' and PS_SUPPKEY='999999' ;
+
+![执行失败对其余语句的影响](img/%E6%89%A7%E8%A1%8C%E5%A4%B1%E8%B4%A5%E5%AF%B9%E5%85%B6%E4%BD%99%E8%AF%AD%E5%8F%A5%E7%9A%84%E5%BD%B1%E5%93%8D.png)
+
+发现不只是更新语句回滚，插入语句也跟着回滚，回滚到整个事务开始前。
+
+事务内某条语句的错误执行会导致该事务在提交时强制回滚，回滚到事务开始前，从而使事务内其他语句的执
+行无效。
+
+### 并发事务控制
+
+**read committed 隔离级别下的脏读**
+
+打开两个 putty 窗口，并连接相同的数据库。
+
+在第一个窗口创建 read committed 隔离级别下的事务 T1，并将 PS_PARTKEY 为“2022”、PS_SUPPKEY 为“1526”的 PS_AVAILQTY 修改为 6：
+
+    START TRANSACTION ISOLATION LEVEL read committed;
+    update partsupp_1
+    set PS_AVAILQTY=6
+    where PS_PARTKEY='2022' and PS_SUPPKEY='1526';
+
+在第二个窗口创建 read committed 隔离级别下的事务 T2。查询 PS_PARTKEY 为“2022”、PS_SUPPKEY 为“1526”的 PS_AVAILQTY 值；
+
+    START TRANSACTION ISOLATION LEVEL read committed;
+    select PS_PARTKEY, PS_SUPPKEY, PS_AVAILQTY
+    from partsupp_1
+    where PS_PARTKEY='2022' and PS_SUPPKEY='1526';
+
+![事务T1提交前](img/%E4%BA%8B%E5%8A%A1T1%E6%8F%90%E4%BA%A4%E5%89%8D.png)
+
+与之前查询的结果相同，都为 1。还未提交的事务 T1 对 PS_AVAILQTY 的更改并没有影响之后事务 T2 的查询结果，这样若事务 T1 之后回滚，事务 T2 也不会读到脏数据。
+
+**read committed 隔离级别下的不可重复读**
+
+然后将事务 T2 提交，并将事务 T1 回滚。再在事务 T1 中，查询 PS_PARTKEY 为“2022”、PS_SUPPKEY 为“1526”的 PS_AVAILQTY 值。
+
+在事务 T2 中，将 PS_PARTKEY 为“2022”、PS_SUPPKEY 为“1526”的 PS_AVAILQTY 修改为 6，并 COMMIT，提交事务 T2。
+
+在事务 T1 中，再次查询 PS_PARTKEY 为“2022”、PS_SUPPKEY 为“1526”的 PS_AVAILQTY 值，并 COMMIT，提交事务 T1。
+
+![事务T2提交后](img/%E4%BA%8B%E5%8A%A1T2%E6%8F%90%E4%BA%A4%E5%90%8E.png)
+
+两次查询的值不一样，第二次查询的值为 6，与之前提交的事务 T2 中更改的值相同。
+
+受到其它已经提交的事务的影响，不同的时刻读到的同一批数据不一样。该例中，T1 事务的查询操作受到之前已经提交的 T2 事务的数据更改操作的影响，使得两次对同一个数据的查询结果不一样。read committed 隔离级别下可能出现不可重复读。
+
+**read committed 隔离级别下的幻读**
+
+这次首先在事务 T1 中，查询 PS_PARTKEY 为“2022”、PS_SUPPKEY 在“23”和“2022”之间的元组：
+
+    select *
+    from partsupp_1
+    where PS_PARTKEY='2022' and PS_SUPPKEY between '23' and '2022';
+
+在事务 T2 中，插入 PS_PARTKEY 为“2022”、PS_SUPPKEY”为“2022”的元组，并 COMMIT 提交事务
+T2：
+
+    INSERT INTO partsupp_1
+    values('2022','2022',0,0,'comment');
+    commit;
+
+在事务 T1 中，再次查询 PS_PARTKEY 为“2022”、PS_SUPPKEY 在“23”和“2022”之间的元组,并 COMMIT
+提交事务。
+
+![事务T2提交后](img/%E4%BA%8B%E5%8A%A1T2%E6%8F%90%E4%BA%A4%E5%90%8E2.png)
+
+查询结果一共有 5 行，多出的一行数据为在已经提交的事务 T2 中插入的新元组。
+
+
+在事务 T1 第一次查询以后，事务 T1 还未提交，事务 T2 就插入了一条在事务 T1 的查询范围内的元组，并且事务 T2 提交了，之后事务 T1 在进行一遍相同的查询，受事务 T2 的插入操作的影响，查询结果多出了一个数据。read committed 隔离级别下可能出现幻读。
+
+**repeatable read 隔离级别下的脏读**
+
+在第一个窗口创建 repeatable read 隔离级别下的事务 T1。并将 PS_PARTKEY 为“2022”、PS_SUPPKEY 为“1526”的 PS_AVAILQTY 修改为 6：
+
+    START TRANSACTION ISOLATION LEVEL repeatable read;
+    update partsupp_1
+    set PS_AVAILQTY=6
+    where PS_PARTKEY='2022' and PS_SUPPKEY='1526';
+
+在第二个窗口创建 repeatable read 隔离级别下的事务 T2。查询 PS_PARTKEY 为“2022”、PS_SUPPKEY 为“1526”的 PS_AVAILQTY 值；
+
+    START TRANSACTION ISOLATION LEVEL repeatable read;
+    select PS_PARTKEY, PS_SUPPKEY, PS_AVAILQTY
+    from partsupp_1
+    where PS_PARTKEY='2022' and PS_SUPPKEY='1526';
+
+![事务T1提交前](img/事务T1提交前2.png)
+
+与之前查询的结果相同，都为 1。还未提交的事务 T1 对 PS_AVAILQTY 的更改并没有影响之后事务 T2 的查询
+结果，这样若事务 T1 之后回滚，事务 T2 也不会读到脏数据。
+
+**repeatable read 隔离级别下的不可重复读**
+
+然后将事务 T2 提交，并将事务 T1 回滚。再在事务 T1 中，查询 PS_PARTKEY 为“2022”、PS_SUPPKEY 为“1526”的 PS_AVAILQTY 值。
+
+在事务 T2 中，将 PS_PARTKEY 为“2022”、PS_SUPPKEY 为“1526”的 PS_AVAILQTY 修改为 6，并 COMMIT，提交事务 T2。
+
+在事务 T1 中，再次查询 PS_PARTKEY 为“2022”、PS_SUPPKEY 为“1526”的 PS_AVAILQTY 值，并 COMMIT，提交事务 T1。
+
+![事务T2提交后](img/事务T2提交后3.png)
+
+两次查询的值相同，都为 1，前面已经提交的事务 T2 对 PS_AVAILQTY 值的修改未影响事务 T1 的查询。
+
+repeatable read 隔离级别下，一个事务仅仅看到本事务开始之前提交的数据，它不能看到未提交的数据，以及在事务执行期间由其它并发事务提交的修改。该例中，T1 事务只能看到在该事务开始之前提交的数据，而T2 事务是在 T1 事务执行期间提交的，则 T1 事务无法看到 T2 事务修改的数据，T1 事务的查询结果不会产生
+变化。repeatable read 隔离级别下不会出现不可重复读。
+
+**repeatable read 隔离级别下的幻读**
+
+这次首先在事务 T1 中，查询 PS_PARTKEY 为“2022”、PS_SUPPKEY 在“23”和“2022”之间的元组：
+
+    select *
+    from partsupp_1
+    where PS_PARTKEY='2022' and PS_SUPPKEY between '23' and '2022';
+
+在事务 T2 中，插入 PS_PARTKEY 为“2022”、PS_SUPPKEY”为“2022”的元组，并 COMMIT 提交事务
+T2：
+
+    INSERT INTO partsupp_1
+    values('2022','2022',0,0,'comment');
+    commit;
+
+在事务 T1 中，再次查询 PS_PARTKEY 为“2022”、PS_SUPPKEY 在“23”和“2022”之间的元组,并 COMMIT
+提交事务。
+
+![事务T2提交后](img/事务T2提交后4.png)
+
+查询结果一共有 4 行，与之前的查询结果相同。
+
+
+该例中，T1 事务只能看到在该事务开始之前提交的数据，而 T2 事务是在 T1 事务执行期间提交的，则 T1 事务无法看到 T2 事务插入的数据，T1 事务的查询结果不会产生变化。repeatable read 隔离级别下不会出现幻读。
+
+### 事务锁机制
+
+**隔离级别 read-repeatable 下死锁**
+
+在第一个创窗口中开启事务，执行 select for update 语句，该语句对表中符合条件的元组/数据行加上互斥锁。
+
+![加上互斥锁](img/%E5%8A%A0%E4%B8%8A%E4%BA%92%E6%96%A5%E9%94%81.png)
+
+在第二个窗口中开启一个事务，也是执行上述 select for update 语句。此时检测到符合筛选条件的部分数据行上加了互斥锁（两次查询的数据行有重叠，存在 PS_PARTKEY=2022 且 PS_SUPPKEY=1526 的数据行），查询进入申请锁的等待阶段。
+
+![等待锁释放](img/%E7%AD%89%E5%BE%85%E9%94%81%E9%87%8A%E6%94%BE.png)
+
+若在等待一段时间后，仍没有释放互斥锁，达到了设定的锁等待时间，系统会自动判定发生死锁，回滚当前事务并报错：
+
+    ERROR:  Lock wait timeout: thread 140496907597568 on node dn_6001 waiting for ShareLock on transaction 45892 after 120018.947 ms
+    DETAIL:  blocked by hold lock thread 140496994690816, statement <select PS_PARTKEY from partsupp_1 where PS_SUPPKEY=1526 for update;>, hold lockmode ExclusiveLock.
+
+
+**加的互斥锁的粒度**
+
+还是在第一个创窗口中开启事务，执行 select for update 语句，该语句对表中符合条件的元组/数据行加上互斥锁。
+
+在第二个窗口中开启一个事务，执行如下 select for update 语句。
+
+    START TRANSACTION ISOLATION LEVEL repeatable read;
+    select PS_SUPPKEY from partsupp_1 where PS_PARTKEY=2022 for update;
+
+![不等待锁释放执行](img/%E4%B8%8D%E7%AD%89%E5%BE%85%E6%89%80%E9%87%8A%E6%94%BE%E6%89%A7%E8%A1%8C.png)
+
+正常查询，没有发生锁等待，说明 select for update 语句，不是对整表加互斥锁。
+
+在第二个窗口中，继续执行如下 select for update 语句：
+
+    select PS_PARTKEY from partsupp_1 where PS_SUPPKEY=22 for update;
+
+![不等待锁释放执行](img/不等待所释放执行2.png)
+
+
+正常查询，没有发生锁等待，说明 select for update 语句，不是对查询条件所在的列加互斥锁。
+
+在第二个窗口中，这次与第一个创窗口的查询条件一样，执行如下 select for update 语句：
+
+    select PS_PARTKEY from partsupp_1 where PS_SUPPKEY=20 for update;
+
+![等待锁释放](img/等待锁释放2.png)
+
+发生锁等待，等待一段时间后，系统会自动判定发生死锁，回滚当前事务并报错：
+
+
+    ERROR:  Lock wait timeout: thread 140496907597568 on node dn_6001 waiting for ShareLock on transaction 45894 after 120007.602 ms
+    DETAIL:  blocked by hold lock thread 140496994690816, statement <select PS_PARTKEY from partsupp_1 where PS_SUPPKEY=20 for update;>, hold lockmode ExclusiveLock.
+
+
+以上行为说明，select for update 语句，加入的互斥锁的粒度一般为行锁。
+
+**锁管理参数**
+
+|参数|说明|参数类型|取值范围|默认值|
+|---|---|---|---|---|
+|deadlock_timeout|设置死锁超时检测时间，以毫秒为单位。当申请的锁超过设定值时，系统会检查是否产生了死锁。死锁的检查代价是比较高的，服务器不会在每次等待锁的时候都运行这个过程。在系统运行过程中死锁是不经常出现的，因此在检查死锁前只需等待一个相对较短的时间。增加这个值就减少了无用的死锁检查浪费的时间，但是会减慢真正的死锁错误报告的速度。在一个负载过重的服务器上，用户可能需要增大它。这个值的设置应该超过事务持续时间，这样就可以减少在锁释放之前就开始死锁检查的问题。如果要通过设置 log_lock_waits 来将查询执行过程中的锁等待耗时信息写入日志，请确保 log_lock_waits 的设置值小于 deadlock_timeout 的设置值（或默认值）。|SUSET 类型|整型，1\~2147483647，单位为毫秒（ms）|1s|
+|lockwait_timeout|控制单个锁的最长等待时间。当申请的锁等待时间超过设定值时，系统会报错。|SUSET 类型|整型，0 \~ INT_MAX，单位为毫秒（ms）。|20min|
+|update_lockwait_timeout|允许并发更新参数开启情况下，该参数控制并发更新同一行时单个锁的最长等待时间。当申请的锁等待时间超过设定值时，系统会报错。|SUSET 类型|整型，0 \~ INT_MAX，单位为毫秒（ms）。|2min|
+|max_locks_per_transaction|控制每个事务能够得到的平均的对象锁的数量。共享的锁表的大小是以假设任意时刻最多只有max_locks_per_transaction*(max_connections+max_prepared_transactions) 个独立的对象需要被锁住为基础进行计算的。不超过设定数量的多个对象可以在任一时刻同时被锁定。当在一个事务里面修改很多不同的表时，可能需要提高这个默认数值。只能在数据库启动的时候设置。增大这个参数可能导致 openGauss 请求更多的 System V 共享内存，有可能超过操作系统的缺省配置。当运行备机时，请将此参数设置不小于主机上的值，否则，在备机上查询操作不会被允许。|POSTMASTER 类型|整型，10 \~ INT_MAX|256|
+|max_pred_locks_per_transaction|控制每个事务允许断定锁的最大数量，是一个平均值。共享的断定锁表的大小是以假设任意时刻最多只有max_pred_locks_per_transaction*(max_connections+max_prepared_transactions) 个独立的对象需要被锁住为基础进行计算的。不超过设定数量的多个对象可以在任一时刻同时被锁定。当在一个事务里面修改很多不同的表时，可能需要提高这个默认数值。只能在服务器启动的时候设置。增大这个参数可能导致 openGauss 请求更多的 System V 共享内存，有可能超过操作系统的缺省配置。|POSTMASTER 类型|整型，10 \~ INT_MAX|64|
+|gs_clean_timeout|控制 DBnode 周期性调用 gs_clean 工具的时间，是一个平均值。openGauss 数据库中事务处理使用的是两阶段提交的方法，当有两阶段事务残留时，该事务通常会拿着表级锁，导致其它连接无法加锁，此时需要调用gs_clean工具对openGauss中两阶段事务进行清理，gs_clean_timeout是控制 DBnode 周期性调用 gs_clean 的时间。增大这个参数可能导致 openGauss 周期性调用 gs_clean 工具的时间延长，导致两阶段事务清理时间延长。|SIGHUP 类型|整型，0 \~ INT_MAX / 1000，单位为秒（s）。|5min|
+|partition_lock_upgrade_timeout|在执行某些查询语句的过程中，会需要将分区表上的锁级别由允许读的 ExclusiveLock 级别升级到读写阻塞的 AccessExclusiveLock 级别。如果此时已经存在并发的读事务，那么该锁升级操作将阻塞等待。partition_lock_upgrade_timeout 为尝试锁升级的等待超时时间。在分区表上进行 MERGE PARTITION 和 CLUSTER PARTITION 操作时，都利用了临时表进行数据重排和文件交换，为了最大程度提高分区上的操作并发度，在数据重排阶段给相关分区加锁 ExclusiveLock，在文件交换阶段加锁 AccessExclusiveLock。常规加锁方式是等待加锁，直到加锁成功，或者等待时间超过 lockwait_timeout 发生超时失败。在分区表上进行 MERGE PARTITION 或 CLUSTER PARTITION 操作时，进入文件交换阶段需要申请加锁AccessExclusiveLock，加锁方式是尝试性加锁，加锁成功了则立即返回，不成功则等待 50ms 后继续下次尝试，加锁超时时间使用会话级设置参数partition_lock_upgrade_timeout。特殊值：若 partition_lock_upgrade_timeout 取值-1，表示无限等待，即不停的尝试锁升级，直到加锁成功|USERSET 类型|整型，最小值-1，最大值 3000，单位为秒（s）。|1800|
+|fault_mon_timeout|轻量级死锁检测周期。|SIGHUP 类型|整型，最小值 0，最大值 1440，单位为分钟（min）|5min|
+|enable_online_ddl_waitlock|控制 DDL 是否会阻塞等待 pg_advisory_lock/pgxc_lock_for_backup 等openGauss 锁。主要用于 OM 在线操作场景，不建议用户设置。|SIGHUP 类型|布尔型，on 表示开启，off 表示关闭。|off|
+|xloginsert_locks|控制用于并发写预写式日志锁的个数。主要用于提高写预写式日志的效率。|POSTMASTER 类型|整型，最小值 1，最大值 1000|8|
+
+### 备份与恢复
+
+创建 customer_t1 表：
+
+    CREATE TABLE customer_t1 
+    ( 
+    c_customer_sk integer, 
+    c_customer_id char(5), 
+    c_first_name char(6), 
+    c_last_name char(8) 
+    );
+
+并向表中插入数据：
+
+    INSERT INTO customer_t1 (c_customer_sk, c_customer_id, c_first_name) VALUES
+    (3769, 'hello', DEFAULT) ,
+    (6885, 'maps', 'Joes'), 
+    (4321, 'tpcds', 'Lily'), 
+    (9527, 'world', 'James');
+
+和表customer_t1 一样创建 customer_t2 表，并向表中插入数据：
+
+    INSERT INTO customer_t2 (c_customer_sk, c_customer_id, c_first_name) VALUES
+    (3769, 'hello', DEFAULT) ,
+    (6885, 'maps', 'Joes'), 
+    (9527, 'world', 'James');
+
+创建用户 lucy，并切换到 Lucy 用户：
+
+    CREATE USER lucy WITH PASSWORD "Bigdata@123";
+    \c - lucy
+
+创建 lucy shema 的表：
+
+    CREATE TABLE mytable (firstcol int);
+
+向表中插入数据：
+
+    INSERT INTO mytable values (100);
+
+以上准备工作完成后，退出数据库。
+
+**物理备份**
+
+创建存储备份文件的文件夹：
+
+    mkdir -p /home/omm/physical/backup
+
+将数据库进行物理备份；
+
+    gs_basebackup -D /home/omm/physical/backup -p 26000
+
+![数据库备份](img/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%A4%87%E4%BB%BD.png)
+
+切换到存储备份文件夹查看备份文件。
+
+![数据库备份文件](img/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%A4%87%E4%BB%BD%E6%96%87%E4%BB%B6.png)
+
+**物理备份恢复**
+
+停止 openGauss:
+
+    gs_om -t stop
+
+清理原库中的所有或部分文件;
+
+    cd /gaussdb/data/db1
+    rm -rf *
+
+![删除数据库文件](img/%E5%88%A0%E9%99%A4%E6%95%B0%E6%8D%AE%E5%BA%93%E6%96%87%E4%BB%B6.png)
+
+删除文件后，文件目录下文件全部被删除。
+
+使用数据库系统用户权限从备份中还原需要的数据库文件：
+
+    cp -r /home/omm/physical/backup/. /gaussdb/data/db1
+
+恢复后文件列表如下：
+
+![数据库备份恢复](img/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%A4%87%E4%BB%BD%E6%81%A2%E5%A4%8D.png)
+
+重启数据库服务器，并检查数据库内容，发现数据库已经恢复到所需的状态。
+
+## 实验总结
+
+通过本次试验，我学会使用事务的 commit 和 rollback 操作并了解了commit 和 rollback会导致的结果。我同时还了解了并发访问可能会出现的三种问题，分别是脏读、不可重复读，幻读并学会使用锁来避免这些问题。最后，我还学会了如何备份数据库文件，确保数据库受损时可以恢复到之前的状态。
+
+按照实验指导书的流程完成实验，并没有遇到什么问题。
