@@ -1,6 +1,7 @@
-# 数据库实验平台OpenEuler的安装、OpenGauss数据库的安装即配置实验
 
-## 实验目的
+## 数据库实验平台OpenEuler的安装、OpenGauss数据库的安装即配置实验
+
+### 实验目的
 
 * 掌握 VirtualBox 软件的安装方法以及在 virtualBox 上创建 linux 虚拟机并安装 openEuler 系统的方法
 
@@ -14,11 +15,11 @@
 
 * 经行初始化等简单的配置
 
-## 实验环境
+### 实验环境
 
 虚拟机软件使用的是 VirtualBox6.1.14 版本，虚拟机上操作系统是 openEuler-20.03-LTS-x86_64。电脑建议使用 windows10 系统，内存建议 8GB 以上。
 
-## 实验内容
+### 实验内容
 
 * 安装 VirtualBox
 
@@ -28,7 +29,7 @@
 
 * 安装 OpenGauss
 
-## 实验步骤
+### 实验步骤
 
 第一步，进入VirtualBox官网下载并安装VirtualBox
 
@@ -46,7 +47,7 @@
 
 最后，依据实验指导书初始化数据库完成数据库的安装
 
-## 实验总结
+### 实验总结
 
 该实验主要是完成openGauss数据的安装，为后续的实验做准备。实验指导书上有详细的步骤，只要细心的按照步骤一步一步来，就能较为容易的实现数据库的安装。
 
@@ -54,9 +55,9 @@
 
 为了完整体验一次数据库的安装，因此本次试验并未使用数据库安装脚本。若要提高部署数据库的效率，可以将安装步骤写入shell脚本，实现一键式配置、下载、安装。
 
-# OpenGauss数据库建表及数据导入实验
+## OpenGauss数据库建表及数据导入实验
 
-## 实验目的
+### 实验目的
 
 * 了解 openGauss 的基本数据类型
 
@@ -64,19 +65,19 @@
 
 * 学会使用 gsql 元命令批量导入数据
 
-## 实验环境
+### 实验环境
 
 实验环境为 virtualBOX 虚拟机 openEuler20.03 系统上的 openGauss1.1.0 数据库，实验数据采用 TPC-H 数据库的八张表，实验过程会用到 WinSCP，Putty 软件。
 
-## 实验内容
+### 实验内容
 
 * 创建关系表
 
 * 数据导入
 
-## 实验步骤
+### 实验步骤
 
-### 创建关系表
+#### 创建关系表
 
 输入`gsql -d postgres -p 26000 -r`以编辑模式连接数据库。然后使用 CREATE TABLE 命令创建各所需表
 
@@ -143,7 +144,7 @@
     C_NATIONKEY INTEGER NOT NULL,
     C_PHONE CHAR(15) NOT NULL,
     C_ACCTBAL DECIMAL(15,2) NOT NULL,
-    postgres(# C_MKTSEGMENT CHAR(10) NOT NULL,
+    postgres(## C_MKTSEGMENT CHAR(10) NOT NULL,
     C_COMMENT VARCHAR(117) NOT NULL);
 
 创建订单明细表 LINEITEM
@@ -169,7 +170,7 @@
 
 ![创建表格](img/创建表格.png)
 
-### 数据导入
+#### 数据导入
 
 接着使用WinSCP连接上虚拟机，以omm用户身份登录，将tpc-h的数据上传到`home/omm/tpc-h/data`目录下
 
@@ -178,66 +179,66 @@
 使用 \copy 命令将上传的数据导入之前创建的表
 
 
-    postgres=# copy region FROM '/home/omm/tpc-h/data/region.txt' with delimiter as '|';
+    postgres=## copy region FROM '/home/omm/tpc-h/data/region.txt' with delimiter as '|';
     COPY 5
-    postgres=# copy nation FROM '/home/omm/tpc-h/data/nation.txt' with delimiter as '|';
+    postgres=## copy nation FROM '/home/omm/tpc-h/data/nation.txt' with delimiter as '|';
     COPY 25
-    postgres=# copy part FROM '/home/omm/tpc-h/data/part.txt' with delimiter as '|';
+    postgres=## copy part FROM '/home/omm/tpc-h/data/part.txt' with delimiter as '|';
     COPY 40000
-    postgres=# copy supplier FROM '/home/omm/tpc-h/data/supplier.txt' with delimiter as '|';
+    postgres=## copy supplier FROM '/home/omm/tpc-h/data/supplier.txt' with delimiter as '|';
     COPY 2000
-    postgres=# copy customer FROM '/home/omm/tpc-h/data/customer.txt' with delimiter as '|';
+    postgres=## copy customer FROM '/home/omm/tpc-h/data/customer.txt' with delimiter as '|';
     COPY 30000
-    postgres=# copy lineitem FROM '/home/omm/tpc-h/data/lineitem.txt' with delimiter as '|';
+    postgres=## copy lineitem FROM '/home/omm/tpc-h/data/lineitem.txt' with delimiter as '|';
     COPY 1199969
-    postgres=# copy partsupp FROM '/home/omm/tpc-h/data/partsupp.txt' with delimiter as '|';
+    postgres=## copy partsupp FROM '/home/omm/tpc-h/data/partsupp.txt' with delimiter as '|';
     COPY 160000
-    postgres=# copy orders FROM '/home/omm/tpc-h/data/orders.txt' with delimiter as '|';
+    postgres=## copy orders FROM '/home/omm/tpc-h/data/orders.txt' with delimiter as '|';
     COPY 300000
 
 使用`select * from tablename`语句一一检查每个表数据是否导入正确，完成数据导入。
 
 最后为各表添加主键约束和外键约束
 
-    postgres=# ALTER TABLE REGION ADD PRIMARY KEY (R_REGIONKEY);
+    postgres=## ALTER TABLE REGION ADD PRIMARY KEY (R_REGIONKEY);
     NOTICE:  ALTER TABLE / ADD PRIMARY KEY will create implicit index "region_pkey" for table "region"
     ALTER TABLE
-    postgres=# ALTER TABLE NATION ADD PRIMARY KEY (N_NATIONKEY);
+    postgres=## ALTER TABLE NATION ADD PRIMARY KEY (N_NATIONKEY);
     NOTICE:  ALTER TABLE / ADD PRIMARY KEY will create implicit index "nation_pkey" for table "nation"
     ALTER TABLE
-    postgres=# ALTER TABLE NATION ADD FOREIGN KEY (N_REGIONKEY) references REGION;
+    postgres=## ALTER TABLE NATION ADD FOREIGN KEY (N_REGIONKEY) references REGION;
     ALTER TABLE
-    postgres=# ALTER TABLE PART ADD PRIMARY KEY (P_PARTKEY);
+    postgres=## ALTER TABLE PART ADD PRIMARY KEY (P_PARTKEY);
     NOTICE:  ALTER TABLE / ADD PRIMARY KEY will create implicit index "part_pkey" for table "part"
     ALTER TABLE
-    postgres=# ALTER TABLE SUPPLIER ADD PRIMARY KEY (S_SUPPKEY);
+    postgres=## ALTER TABLE SUPPLIER ADD PRIMARY KEY (S_SUPPKEY);
     NOTICE:  ALTER TABLE / ADD PRIMARY KEY will create implicit index "supplier_pkey" for table "supplier"
     ALTER TABLE
-    postgres=# ALTER TABLE SUPPLIER ADD FOREIGN KEY (S_NATIONKEY) references NATION;
+    postgres=## ALTER TABLE SUPPLIER ADD FOREIGN KEY (S_NATIONKEY) references NATION;
     ALTER TABLE
-    postgres=# ALTER TABLE PARTSUPP ADD PRIMARY KEY (PS_PARTKEY,PS_SUPPKEY);
+    postgres=## ALTER TABLE PARTSUPP ADD PRIMARY KEY (PS_PARTKEY,PS_SUPPKEY);
     NOTICE:  ALTER TABLE / ADD PRIMARY KEY will create implicit index "partsupp_pkey" for table "partsupp"
     ALTER TABLE
-    postgres=# ALTER TABLE CUSTOMER ADD PRIMARY KEY (C_CUSTKEY);
+    postgres=## ALTER TABLE CUSTOMER ADD PRIMARY KEY (C_CUSTKEY);
     NOTICE:  ALTER TABLE / ADD PRIMARY KEY will create implicit index "customer_pkey" for table "customer"
     ALTER TABLE
-    postgres=# ALTER TABLE CUSTOMER ADD FOREIGN KEY (C_NATIONKEY) references NATION;
+    postgres=## ALTER TABLE CUSTOMER ADD FOREIGN KEY (C_NATIONKEY) references NATION;
     ALTER TABLE
-    postgres=# ALTER TABLE LINEITEM ADD PRIMARY KEY (L_ORDERKEY,L_LINENUMBER);
+    postgres=## ALTER TABLE LINEITEM ADD PRIMARY KEY (L_ORDERKEY,L_LINENUMBER);
     NOTICE:  ALTER TABLE / ADD PRIMARY KEY will create implicit index "lineitem_pkey" for table "lineitem"
     ALTER TABLE
-    postgres=# ALTER TABLE ORDERS ADD PRIMARY KEY (O_ORDERKEY);
+    postgres=## ALTER TABLE ORDERS ADD PRIMARY KEY (O_ORDERKEY);
     NOTICE:  ALTER TABLE / ADD PRIMARY KEY will create implicit index "orders_pkey" for table "orders"
     ALTER TABLE
-    postgres=# ALTER TABLE PARTSUPP ADD FOREIGN KEY (PS_SUPPKEY) references SUPPLIER;
+    postgres=## ALTER TABLE PARTSUPP ADD FOREIGN KEY (PS_SUPPKEY) references SUPPLIER;
     ALTER TABLE
-    postgres=# ALTER TABLE PARTSUPP ADD FOREIGN KEY (PS_PARTKEY) references PART;
+    postgres=## ALTER TABLE PARTSUPP ADD FOREIGN KEY (PS_PARTKEY) references PART;
     ALTER TABLE
-    postgres=# ALTER TABLE ORDERS ADD FOREIGN KEY (O_CUSTKEY) references CUSTOMER;
+    postgres=## ALTER TABLE ORDERS ADD FOREIGN KEY (O_CUSTKEY) references CUSTOMER;
     ALTER TABLE
-    postgres=# ALTER TABLE LINEITEM ADD FOREIGN KEY (L_ORDERKEY) references ORDERS;
+    postgres=## ALTER TABLE LINEITEM ADD FOREIGN KEY (L_ORDERKEY) references ORDERS;
     ALTER TABLE
-    postgres=# ALTER TABLE LINEITEM ADD FOREIGN KEY (L_PARTKEY,L_SUPPKEY) references PARTSUPP;
+    postgres=## ALTER TABLE LINEITEM ADD FOREIGN KEY (L_PARTKEY,L_SUPPKEY) references PARTSUPP;
     ALTER TABLE
 
 
@@ -249,24 +250,24 @@
 
 可以看到o_orderkey已经被成功设置为主键，o_curskey已经被成功设置为引用customer的外键，lineitem的l_orderkey也被成功设置为引用o_orderkey的外键。
 
-## 实验总结
+### 实验总结
 
 本次试验主要完成了表的创建和数据的导入，为后续对表格做各种操作的实验做准备。通过实践，本人掌握了数据库OpenGauss创建表格语句create的使用方法以及设置主键和外键约束的方法，了解该如何进行数据导入。
 
 按照实验指导书的步骤一步一步完成基本没有遇到问题，只需要注意每完成一个步骤都需要检查一下这一步是否正确完成。每一步骤都有不同的检查方式。
 
 
-# 数据查询与修改实验
+## 数据查询与修改实验
 
-## 实验目的
+### 实验目的
 
 对前面实验建立的电商数据库关系表进行各种类型的查询操作和修改操作，加深对 SQL 语言中 DML的了解，掌握相关查询语句和数据修改语句的使用方法。
 
-## 实验环境
+### 实验环境
 
 本实验环境为 virtualBOX 虚拟机 openEuler20.03 系统上的 openGauss1.1.0/openGauss2.0.0 数据库，实验数据采用电商数据库的八张表
 
-## 实验内容
+### 实验内容
 
 * 单表简单查询，包括复合选择条件、结果排序、结果去重、结果重命名查询
 
@@ -282,9 +283,9 @@
 
 * 表的插入、删除、更新
 
-## 实验步骤
+### 实验步骤
 
-### 单表简单查询
+#### 单表简单查询
 
 **查询1：从订单表ORDERS表中，找出由收银员Clerk#000000951处理的满足下列条件的所有订单o_orderkey：**
 
@@ -420,7 +421,7 @@
 
 使用`EXPLAIN ANALYSE`语句获取到了三个查询语句的查询结果数分别为1、1和1，查询时间分别为2908ms、2583ms和1ms。三者的查询结果都为1个，但使用max语句的查询时间要远远小于使用except语句耗费的时间。
 
-### 多表查询
+#### 多表查询
 
 **查询7：选取两张数据量比较小的表 T1 和 T2，如地区表 REGION、国家表 NATION、供应商表 SUPPLIER，执行如下无连接条件的笛卡尔积操作，观察数据库系统的反应和查询结果：**
 
@@ -469,7 +470,7 @@
 
 使用`EXPLAIN ANALYSE`语句获得查询结果数为655380，查询时间为1356ms。
 
-### 统计查询
+#### 统计查询
 
 **查询11：从订单明细表 LINEITEM、订单表 ORDERS、客户表 CUSTOMER、国家表 NATION，查询客户来自ALGERIA，下单日期为'2015-01-01'到'2015-02-02'的订单下列信息：**
 
@@ -527,7 +528,7 @@
 
 使用`EXPLAIN ANALYSE`语句获得查询结果数为26084，查询时间为173ms。
 
-### 嵌套查询
+#### 嵌套查询
 
 **查询14：：从订单明细表 LINEITEM、订单表 ORDERS、客户表 CUSTOMER 中，使用 set membership 运算符 in，查询明细折扣小于 0.01 的订单，列出这些订单的 key 和采购订单的客户姓名。**
 
@@ -687,7 +688,7 @@
 
 使用`EXPLAIN ANALYSE`语句获得查询结果数为23757，查询时间为141ms。
 
-### with 临时视图查询
+#### with 临时视图查询
 
 **查询 20：用 with 临时视图方式，实现查询 19 中查询要求。**
 
@@ -722,7 +723,7 @@
 
 使用`EXPLAIN ANALYSE`语句获得查询结果数为2000和供应商数量一样多，所有供应商供应任意零件数量的总合都为80，查询时间为76ms。
 
-### 键/函数依赖分析
+#### 键/函数依赖分析
 
 **查询 22：在订单明细表 LINEITEM 中，检查订单 key、零件 key、供应商 key、流水号是否组成超键。**
 
@@ -753,7 +754,7 @@
 
 使用`EXPLAIN ANALYSE`语句获得查询结果数为1199969，查询时间为3887.795ms。因此key→价格不成立。
 
-### 表的插入、删除、更新
+#### 表的插入、删除、更新
 
 **查询 24：向订单表 ORDERS 中插入一条订单数据；**
 
@@ -883,23 +884,23 @@ from ORDERS;
 
 
 
-## 实验总结
+### 实验总结
 
 通过本次实践，本人基本掌握了查询语句的各种使用方式和场景，基本掌握了插入、删除和更新操作，学会通过查询语句判断函数依赖关系。
 
 实验中遇到的一个问题就是由于查询结果一般数量巨大，实验结果难以表示。因此，实验结果主要通过使用`EXPLAIN ANALYZE`语句获取查询结果行数和查询所需时间来展现。同时，对于需要对比的查询语句，`EXPLAIN ANALYZE`语句也可用于对比不同查询语句的表现。
 
-# 数据库完整性约束实验
+## 数据库完整性约束实验
 
-## 实验目的
+### 实验目的
 
 了解 SQL 语言和 openGauss 数据库提供的完整性（integrity）机制，通过实验掌握面向实际数据库建立实体完整性、参照完整性、断言、函数依赖等各种完整性约束的方法，验证各类完整性保障措施。
 
-## 实验环境
+### 实验环境
 
 本实验环境为 virtualBOX 虚拟机 openEuler20.03 系统上的openGauss1.1.0/openGauss2.0.0 数据库和华为云 GaussDB(openGauss)数据库，实验数据采用电商数据库的八张表。
 
-## 实验内容
+### 实验内容
 
 在前面完成的实验中已建立了本实验所需的 8 张表。本实验将针对这 8 张表，采用 create table、alter table 等语句，添加主键、候选键、外键、check 约束、默认/缺省值约束，并观察当用户对数据库进行增、删、改操作时，DBMS 如何维护完整性约束。
 
@@ -909,9 +910,9 @@ from ORDERS;
 * 函数依赖
 * 触发器
 
-## 实验步骤
+### 实验步骤
 
-### 建立完整性约束
+#### 建立完整性约束
 
 创建lineitem表格副本，并使用`Create table`建立完整性约束。以下是创建语句：
 
@@ -959,7 +960,7 @@ from ORDERS;
 
 可以看到成功建立了和LINEITEMcopy1一样的完整性约束
 
-### 主键约束验证
+#### 主键约束验证
 
 将LINEITEM数据全部插入到表LINEITEMcopy1后，使用查询语句判断LINEITEMcopy1是否满足主键约束，以下为查询语句：
 
@@ -1018,7 +1019,7 @@ from ORDERS;
 
     ERROR:  duplicate key value violates unique constraint "lineitemcopy1_pkey"
 
-### 空值约束验证
+#### 空值约束验证
 
 尝试插入一行l_extendedprice字段为空的数据
 
@@ -1036,7 +1037,7 @@ from ORDERS;
 
     ERROR:  null value in column "l_extendedprice" violates not-null constraint
 
-### 外键完整性约束
+#### 外键完整性约束
 
 为方便起见，和前文中lineitem一样，分别创建关系表orders和customer的副本orderscopy和customercopy，并仅创建这两个表之间的外键约束，即`FOREIGN KEY (o_custkey) REFERENCES customercopy1(c_custkey)`，然后将数据导入进去
 
@@ -1125,7 +1126,7 @@ from ORDERS;
 
 这就是级联和非级联的区别，级联外键关联下，当被参照关系中的主键发生修改，删除时，参照关系中的外键会跟着进行相应地修改，删除。
 
-### 函数依赖分析验证
+#### 函数依赖分析验证
 
 可以使用查询语句判断函数依赖P_BRAND→P_MFGR是否满足：
 
@@ -1140,7 +1141,7 @@ from ORDERS;
 
 ![函数依赖分析验证](img/%E5%87%BD%E6%95%B0%E4%BE%9D%E8%B5%96%E5%88%86%E6%9E%90%E9%AA%8C%E8%AF%81.png)
 
-### 触发器约束
+#### 触发器约束
 
 由于触发器中禁止增删改操作的嵌套使用，因此为了完成实验需求，再对lineitemcopy表进行一个备份，新表为lineitemcopy_new。为了验证触发器正确性，删除新表上的相关约束。在实际应用中需保持两表的数据一致性，本实验仅验证触发器效果。
 
@@ -1229,30 +1230,30 @@ from ORDERS;
 
 ![触发器更新失败检验](img/%E8%A7%A6%E5%8F%91%E5%99%A8%E6%9B%B4%E6%96%B0%E5%A4%B1%E8%B4%A5%E6%A3%80%E9%AA%8C.png)
 
-## 实验总结
+### 实验总结
 
 通过本次实践，本人基本掌握了为表添加完整性约束的方法，学会通过查询语句判断完整性约束的正确性。通过实践，进一步了解了级联和非级联的区别。最后还尝试使用了触发器实现条件检测与过程的触发。
 
 
-# 数据库接口实验
+## 数据库接口实验
 
-## 实验目的
+### 实验目的
 
 * 通过编写数据库应用程序，培养数据库应用程序开发能力
 * 熟悉数据库应用程序设计的多种接口的配置，培养相关的软件配置能力
 
-## 实验环境
+### 实验环境
 
 本实验环境为 virtualBOX 虚拟机 openEuler20.03 系统上的openGauss1.1.0/openGauss2.0.0 数据库和华为云 GaussDB(openGauss)数据库，实验数据采用电商数据库的八张表。
 
-## 实验内容
+### 实验内容
 
 * 了解通用数据库应用编程接口（例如 JDBC、ODBC 等）的配置方法
 * 利用 C、Java 等高级程序设计语言编程实现简单的数据库应用程序，掌握基于 ODBC、JDBC 接口的数据库访问的基本原理和方法，访问 TPC-H 数据库，执行查找、增加、删除、更新等操作，掌握基于应用编程接口的数据库访问方法。
 
 本次实验选择使用JDBC完成接口实验。
 
-## 实验步骤
+### 实验步骤
 
 首先需要为本地数据库配置好监听信息。
 
@@ -1385,7 +1386,7 @@ from ORDERS;
 ![java_delete结果](img/java_delete结果.png)
 
     
-## 实验总结
+### 实验总结
 
 通过本次实践，本人基本掌握了使用java语言JDBC接口访问数据的方法，并尝试编写了程序对数据库表格进行查询，插入，更新和删除操作。
 
@@ -1396,20 +1397,20 @@ from ORDERS;
 最后一个问题就是，插入、删除和更新这类修改数据库的语句，应当使用`executeUpdate`函数执行。若使用`executeQuery`函数执行，虽然也能执行成功，但会报错`org.postgresql.util.PSQLException: 查询没有传回任何结果`，导致程序没法继续正常运行。
 
 
-# 数据库物理文件实验
+## 数据库物理文件实验
 
-## 实验目的
+### 实验目的
 
 * 掌握用 winSCP 连接 openEuler 系统
 * 学会在本地与 openEuler 间上传与下载文件
 * 了解数据库日志文件的类型和作用
 * 能够针对日志文件进行一些简单的操作和管理维护
 
-## 实验环境
+### 实验环境
 
 本实验环境为 virtualBOX 虚拟机 openEuler20.03 系统上 openGauss1.1.0/openGauss2.0.0 数据库
 
-## 实验内容
+### 实验内容
 
 * 安装 WinSCP
 * 使用 WinSCP 连接 OpenEuler
@@ -1422,7 +1423,7 @@ from ORDERS;
 * 查看WAL日志
 * 查看性能日志
 
-## 实验步骤
+### 实验步骤
 
 由于在数据导入实验中，已经成功使用 WinSCP 连接数据库，并成功传输本地主机文件到虚拟机中，这里就不在展示WinSCP的使用步骤。
 
@@ -1440,7 +1441,7 @@ from ORDERS;
 
 系统日志又分为 openGauss 运行时数据库节点产生的日志和 openGauss 安装部署时产生的日志。
 
-### 运行时日志
+#### 运行时日志
 
 通过 WinSCP 打开文件夹路径`/var/log/gaussdb/omm/pg_log/dn_6001`，文件夹内便是运行时日志。
 
@@ -1454,7 +1455,7 @@ from ORDERS;
 
 使用`cat`命令即可查看文件内容。
 
-### 安装和卸载时日志
+#### 安装和卸载时日志
 
 通过 WinSCP 打开文件夹路径`/var/log/gaussdb/omm/om`，文件夹内便是安装和卸载时日志。
 
@@ -1462,7 +1463,7 @@ from ORDERS;
 
 若要在虚拟机内查看，切换到用户 omm 使用命令`cd /$gaussdbLogPath/omm/om`也可查看到安装和卸载时日志文件。
 
-### 操作日志
+#### 操作日志
 
 通过 WinSCP 打开文件夹路径`/var/log/gaussdb/omm/bin。
 
@@ -1478,7 +1479,7 @@ from ORDERS;
 
 若要在虚拟机内查看，切换到用户 omm 使用命令`cd /$gaussdbLogPath/omm/bin`也可查看到操作日志文件。
 
-### 审计日志
+#### 审计日志
 
 首先需要配置审计项。
 
@@ -1537,7 +1538,7 @@ from ORDERS;
 
 ![备份审计日志](img/备份审计日志.png)
 
-### WAL日志
+#### WAL日志
 
 通过 WinSCP 打开文件夹路径`/gaussdb/data/db1/pg_xlog`，文件夹内便是WAL日志。
 
@@ -1547,7 +1548,7 @@ WAL 日志的命名规则为：日志文件以段文件的形式存储的，每�
 
 若要在虚拟机内查看，切换到用户 omm 使用命令`cd $dataNode/pg_xlog`也可查看到WAL日志文件，`$dataNode`即`/gaussdb/data/db1`。
 
-### 性能日志
+#### 性能日志
 
 通过 WinSCP 打开文件夹路径`/var/log/gaussdb/omm/gs_profile/dn_6001`，文件夹内便是性能日志。
 
@@ -1559,15 +1560,15 @@ WAL 日志的命名规则为：日志文件以段文件的形式存储的，每�
 
 若要在虚拟机内查看，切换到用户 omm 使用命令`cd /var/log/gaussdb/omm/gs_profile`也可查看到性能日志文件。
 
-## 实验总结
+### 实验总结
 
 通过本次实验，本人了解了各种日志的区别和作用，并学会如何查看各类日志的内容。同时，了解了审计日志的作用，学会如何通过配置审计项获取需要的日志信息，懂得如何删除，备份审计日志。
 
 按照实验指导书的流程完成实验，并没有遇到什么问题。
 
-# 数据库物理设计实验
+## 数据库物理设计实验
 
-## 实验目的
+### 实验目的
 
 * 学会创建多个表空间，并在不同的表空间上创建对象
 * 对表空间进行查询，删除等管理操作
@@ -1576,11 +1577,11 @@ WAL 日志的命名规则为：日志文件以段文件的形式存储的，每�
 * 学会在普通表上创建管理索引
 * 学会在分区表上创建管理索引
 
-## 实验环境
+### 实验环境
 
 本实验环境为 virtualBOX 虚拟机 openEuler20.03 系统上的 openGauss1.1.0/openGauss2.0.0 数据库
 
-## 实验内容
+### 实验内容
 
 * 创建表空间
 * 管理表空间
@@ -1589,9 +1590,9 @@ WAL 日志的命名规则为：日志文件以段文件的形式存储的，每�
 * 普通表上创建管理索引
 * 分区表上创建管理索引
 
-## 实验步骤
+### 实验步骤
 
-### 创建表空间
+#### 创建表空间
 
 首先创建表空间:
 
@@ -1614,7 +1615,7 @@ WAL 日志的命名规则为：日志文件以段文件的形式存储的，每�
 
 未来不加`tablespace`的`create`语句就会将表创建在表空间`fastspace`内。
 
-### 管理表空间
+#### 管理表空间
 
 使用如下语句可以查询到全部表空间：
 
@@ -1643,7 +1644,7 @@ WAL 日志的命名规则为：日志文件以段文件的形式存储的，每�
 
 由于只有当表空间为空时才允许删除表空间，由于创建了表`table_1`，报错`ERROR:  tablespace "example" is not empty`
 
-### 创建分区表
+#### 创建分区表
 
 第一种方法，使用`VALUES LESS THAN`的方式，语法格式如下：
 
@@ -1747,7 +1748,7 @@ WAL 日志的命名规则为：日志文件以段文件的形式存储的，每�
 
 此分区表，分区 p1，p3，p4 都在表空间 example2 中，而分区 p2 在表空间 example4 中
 
-### 管理分区表
+#### 管理分区表
 
 删除单个分区：
 
@@ -1781,7 +1782,7 @@ WAL 日志的命名规则为：日志文件以段文件的形式存储的，每�
 
 `partition for` 括号内的数值为所选分区范围内的任意值，如果定义分区时分区键不只一个，那么此括号内的数值个数应该与定义分区时使用的分区键个数相同，并且一一对应
 
-###  普通表上创建管理索引
+####  普通表上创建管理索引
 
 首先创建建 orders 表的备份 orderscopy2，并将数据导入。
 
@@ -1822,7 +1823,7 @@ WAL 日志的命名规则为：日志文件以段文件的形式存储的，每�
 
      DROP INDEX orderscopy2_para_index;
 
-### 分区表上创建管理索引
+#### 分区表上创建管理索引
 
 首先以 orders 表为例创建一个分区表 partition_orders_0。
 
@@ -1872,15 +1873,15 @@ WAL 日志的命名规则为：日志文件以段文件的形式存储的，每�
 
 ![删除索引](img/%E5%88%A0%E9%99%A4%E7%B4%A2%E5%BC%95.png)
 
-## 实验总结
+### 实验总结
 
 通过本实验学会了表空间和分区表的使用使用和管理方法，并了解了分别在普通表和分区表上创建索引的方法。
 
 按照实验指导书的流程完成实验，并没有遇到什么问题。
 
-# 数据库查询优化实验
+## 数据库查询优化实验
 
-## 实验目的
+### 实验目的
 
 在 openGauss 平台下，通过观察 Select/Insert/delete/update 等 SQL 语句的查询执行计划，分析查询执行计划中连接、选择、投影等关系代数操作的实现方式及其执行成本。熟悉了解 openGauss 数据库中查询优化的使用，理解数据库查询优化的基本概念。
 
@@ -1890,20 +1891,20 @@ WAL 日志的命名规则为：日志文件以段文件的形式存储的，每�
 
 参照教科书中 SQL 语句查询优化相关内容，在多种情况下，对比实现方式不同但查询结果相同的等价SQL 语句在执行计划和成本方面的差异，加深对查询优化的理解，进行书写优化 SQL 语句的初步训练，提高编写高效 SQL 语句的能力。
 
-## 实验环境
+### 实验环境
 
 本实验环境为 virtualBOX 虚拟机 openEuler20.03 系统上的 openGauss1.1.0/openGauss2.0.0 数据库，实验数据采用 TPC-H 电商数据库的八张表。
 
-## 实验内容
+### 实验内容
 
 * 执行计划的查看与分析
 * 观察视图查询、with 临时视图查询的执行计划
 * 优化 SQL 语句
 
 
-## 实验步骤
+### 实验步骤
 
-### 执行计划的查看与分析
+#### 执行计划的查看与分析
 
 
 使用`EXPLAIN`查看查询计划，查询订单明细表中，使用了零件 key 为 1 的订单价格和订单状态：
@@ -1925,7 +1926,7 @@ WAL 日志的命名规则为：日志文件以段文件的形式存储的，每�
 
 第五层：Nested Loop，表连接算子，主要作用是将第三层输出的数据和第四层输出的数据通过嵌套循环的方式连接，并输出结果数据。预计执行时间（整个查询的总时间）为 0-40181.90 毫秒，预计输出的行数为 31 行。
 
-### 观察视图查询、with 临时视图查询的执行计划
+#### 观察视图查询、with 临时视图查询的执行计划
 
 在 orders 上建立视图:
 
@@ -1966,7 +1967,7 @@ WAL 日志的命名规则为：日志文件以段文件的形式存储的，每�
 
 原因在于，第一个查询中，提前建立好了orders_view视图，对orders_view视图的直接查询，在执行中，转变成了对orders的顺序扫描，而在第三个查询中，对orders的直接查询，也是对orders的顺序扫描，则两个查询中的执行过程是一样的（都只有顺序扫描这一层），执行时间自然也相似。在第二个查询中，执行计划一共有2层，第一层是对orders进行顺序扫描，并将扫描出的数据存在临时创建的通用表表达式orders_temview中（CTE它是一种临时结果集），第二层再通过对orders_temview进行扫描来得到查询结果。由于多了第二层，执行时间也更长了。
 
-### 优化 SQL 语句
+#### 优化 SQL 语句
 
 **复合索引左前缀**
 
@@ -2263,15 +2264,15 @@ WAL 日志的命名规则为：日志文件以段文件的形式存储的，每�
 
 两次查询的结果完全一致，但是第一次查询的查询效率远远高于第二次查询，增加多余的表会大大的增加开销。
 
-## 实验总结
+### 实验总结
 
 通过本次试验，我了解到了很多查询语句细小差别造成的影响。不同的查询语句即使得到了相同的结果，查询时间也会由较大的差异。个人认为本次试验，对于日后编写高效的查询语句有较大的作用。
 
 按照实验指导书的流程完成实验，并没有遇到什么问题。
 
-# 事务及其并发控制实验
+## 事务及其并发控制实验
 
-## 实验目的
+### 实验目的
 
 通过单事务、串行事务、并发事务实验，了解 openGauss 数据库中
 
@@ -2279,11 +2280,11 @@ WAL 日志的命名规则为：日志文件以段文件的形式存储的，每�
 * 对单事务和串行事务的原子性保障机制；
 * 基于锁和隔离级别的事务并发控制和对并发事务的一致性、独立性保障机制。
 
-## 实验环境
+### 实验环境
 
 本实验环境为 virtualBOX 虚拟机 openEuler20.03 系统上的 openGauss1.1.0/openGauss2.0.0 数据库，实验数据采用 TPC-H 供应商和采购商数据库的八张表。
 
-## 实验内容
+### 实验内容
 
 * 通过 update 操作对现有关系表进行修改，观察违反 check 约束的 update 执行结果，理解 openGauss 对单个事务提供的原子性保障机制；
 * 在 openGauss 两种事务执行模式下，完成串行事务提交与回滚实验，对数据库表进行查询（select）、更新（update）、插入(insert)、删除(delete)，了解 openGauss 事务组成方式和 commit/rollback 对查询结果的影响，了解数据库内容/状态发生变化时 openGauss 提供的事务原子性的保障机制；
@@ -2293,9 +2294,9 @@ WAL 日志的命名规则为：日志文件以段文件的形式存储的，每�
 * 了解 openGauss 提供的各种事务隔离级别。观察分析在“读提交”隔离级别下，并发事务执行导致的数据不一致性，如丢失修改（写-写错误）、读脏数据（写-读错误）、不可重复读（读-写错误）、幻象；
 * 分析对比多种隔离级别下，如“读提交”与“可重复读”，并发事务执行导致的数据不一致性，了解 openGauss提供的事务一致性和独立性保障机制。
 
-## 实验步骤
+### 实验步骤
 
-### 单事务与串行事务
+#### 单事务与串行事务
 
 **违反 check 约束的 update 操作**
 
@@ -2517,7 +2518,7 @@ WAL 日志的命名规则为：日志文件以段文件的形式存储的，每�
 事务内某条语句的错误执行会导致该事务在提交时强制回滚，回滚到事务开始前，从而使事务内其他语句的执
 行无效。
 
-### 并发事务控制
+#### 并发事务控制
 
 **read committed 隔离级别下的脏读**
 
@@ -2641,7 +2642,7 @@ T2：
 
 该例中，T1 事务只能看到在该事务开始之前提交的数据，而 T2 事务是在 T1 事务执行期间提交的，则 T1 事务无法看到 T2 事务插入的数据，T1 事务的查询结果不会产生变化。repeatable read 隔离级别下不会出现幻读。
 
-### 事务锁机制
+#### 事务锁机制
 
 **隔离级别 read-repeatable 下死锁**
 
@@ -2711,7 +2712,7 @@ T2：
 |enable_online_ddl_waitlock|控制 DDL 是否会阻塞等待 pg_advisory_lock/pgxc_lock_for_backup 等openGauss 锁。主要用于 OM 在线操作场景，不建议用户设置。|SIGHUP 类型|布尔型，on 表示开启，off 表示关闭。|off|
 |xloginsert_locks|控制用于并发写预写式日志锁的个数。主要用于提高写预写式日志的效率。|POSTMASTER 类型|整型，最小值 1，最大值 1000|8|
 
-### 备份与恢复
+#### 备份与恢复
 
 创建 customer_t1 表：
 
@@ -2794,7 +2795,7 @@ T2：
 
 重启数据库服务器，并检查数据库内容，发现数据库已经恢复到所需的状态。
 
-## 实验总结
+### 实验总结
 
 通过本次试验，我学会使用事务的 commit 和 rollback 操作并了解了commit 和 rollback会导致的结果。我同时还了解了并发访问可能会出现的三种问题，分别是脏读、不可重复读，幻读并学会使用锁来避免这些问题。最后，我还学会了如何备份数据库文件，确保数据库受损时可以恢复到之前的状态。
 
